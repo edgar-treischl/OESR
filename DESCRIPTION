@@ -1,0 +1,11 @@
+Package: OESR
+Title: R (Reports) for the OES
+Version: 0.0.0.9000
+Authors@R: 
+    person("Edgar", "Treischl", , "edgar.treischl@isb.bayern.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-5627-9125"))
+Description: The package creates automated and dynamic reports for the OES.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

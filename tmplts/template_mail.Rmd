@@ -1,0 +1,47 @@
+---
+title: "Report Test Run"
+output: blastula::blastula_email
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+<img src= "logo_small.png" align="right">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Runtime Error: `r format(Sys.time(), "%d %B, %Y %H:%M:%S")`
+
+dies ist eine automatisierte Mail mit Fehlermeldungen aus dem OES Reporting Systems. Für folgende LimeSurvey Umfragen konnte kein PDF generiert werden.
+
+
+```{r, echo=FALSE}
+errors <- readr::read_csv(here::here("res", "errors.csv"))
+errors
+
+```
+
+Die Fehlermeldungen im Einzelnen lautet wie folgt:
+
+
+```{r, echo=FALSE}
+#now print for each row of test the snr and the error message
+for (i in 1:nrow(errors)) {
+  cat("SNR: ", errors$snr[i], "\n")
+  cat("Error: ", errors$error[i], "\n")
+  cat("\n")
+}
+
+```
+
+
+
+
+

@@ -1,0 +1,27 @@
+---
+title: "![](header_eva_las.png){width=14cm}"
+geometry: left=2cm,right=2cm,top=2cm,bottom=2cm
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \usepackage[utf8]{inputenc} \usepackage{helvet} \usepackage{pdflscape} \usepackage{xcolor} \usepackage{tcolorbox}
+  \renewcommand{\familydefault}{\sfdefault}
+
+---
+
+
+```{r, include=FALSE}
+source(here::here("prog/source.R"), encoding = "UTF-8")
+
+```
+
+
+
+# Ergebnisse aus der Befragung zur Externen Evaluation
+
+## Shit happened, es konnten keine Ergebnisse exportiert werden.
+
+
+
+

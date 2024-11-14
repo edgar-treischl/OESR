@@ -1,0 +1,81 @@
+---
+title: "![](p/header_eva_las.png){width=14cm}"
+geometry: left=2cm,right=2cm,top=2cm,bottom=2cm
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \usepackage[utf8]{inputenc} \usepackage{helvet} \usepackage{pdflscape} \usepackage{xcolor} \usepackage{tcolorbox}
+  \renewcommand{\familydefault}{\sfdefault}
+lang: de-DE
+params:
+  snr: 9999
+  name: "Test Schule"
+  fb: "SUS"
+  n: "1"
+  d: "0"
+  t: "1"
+---
+
+```{r, include=FALSE}
+source(here::here("prog/source.R"), encoding = "UTF-8")
+
+
+headers_df <- export_headers(tmp.meta, 
+                             ubb = ubb)
+
+```
+
+# Rückmeldung der Ergebnisse aus der Unterrichtsbeobachtung
+
+## `r params$name` (`r params$snr`)
+
+-   Anzahl der Beobachtungen: `r params$n`
+-   Beobachtungszeitpunkt: `r params$t`
+-   Dauer der Beobachtung: `r params$d`
+
+![](graphic_title_ubb.png)
+
+\newpage
+
+## Hinweise zum besseren Verständnis der Darstellungen
+
+Sie finden in diesem Bericht Einschätzungen zu den Anforderungen unter der Überschrift des entsprechenden Qualitätskriteriums aus dem Modul A „Lehren und Lernen“ des bayerischen Qualitätstableaus. Das Diagramm (ein sogenanntes „Verteilungsband“) zeigt, in welchem Grad die Anforderung in den beobachteten Unterrichtsstunden erfüllt ist. Zusätzlich werden die Ergebnisse in einer Tabelle berichtet. Die Verteilungsbänder bestehen aus horizontal gestapelten Segmenten in den Farben Rot, Hellrot, Hellgrau, Hellblau und Blau, die den Punkten auf einer fünfstufigen Einschätzungsskala entsprechen (vgl. Farblegende in der Kopfzeile der Tabelle). Pro Einschätzungsoption wird die absolute Anzahl der Unterrichtseinheiten angezeigt. Ein hoher Anteil an blauen Segmenten ("eher erfüllt"; "voll und ganz erfüllt") verweist darauf, dass eine bestimmte Anforderung in einer hohen Zahl von Unterrichtseinheiten erfüllt ist. 
+
+
+Unter der Überschrift einer jeden Anforderung und der Themen Heterogenität und Digitalisierung werden Beobachtungen auf der Ebene der Indikatoren berichtet. Das geschieht ebenfalls in Form von Verteilungsbändern in den Farben Hellrot, Hellgrau und Blau und in Tabellenform. Die Farblegende befindet sich auch hier in der Kopfzeile der Tabelle. 
+
+
+Sie finden außerdem Informationen zur Variation der Lehr- und Lernmethoden und zur Nutzung digitaler Geräte. 
+
+
+Pro Antwortoption wird immer die absolute Anzahl der Unterrichtseinheiten berichtet.
+
+
+\pagebreak
+
+```{r, results='asis',  comment = "", echo=FALSE}
+#headers_df <- readxl::read_excel("headers_df.xlsx")
+#avail_files <- list.files(pattern = "plot.png")
+#avail_files <- stringr::str_sort(avail_files, numeric = T)
+
+avail_files <- paste0(headers_df$plot, "_plot.pdf")
+
+
+# avail_tables <- list.files(pattern = "table.png")
+# avail_tables <- stringr::str_sort(avail_tables, numeric = T)
+
+avail_tables <- paste0(headers_df$plot, "_table.pdf")
+
+header1 <- paste0("\\section{", headers_df$header1, "}")
+#header2 <- paste0("\\subsection{", headers_df$header2, "}")
+header3 <- paste0("\\subsection{Daten}")
+line <-  paste0("![](", avail_files, "){width=90%}", " \\newline")
+line2 <-  paste0("![](", avail_tables, ")", " \\newline")
+pbreak <- "\\pagebreak"
+length_header <- length(header1)
+pbreaks <- rep(pbreak, length_header)
+
+print_str <- stringr::str_c(header1, line, header3, line2)
+cat(print_str)
+```
