@@ -9,28 +9,16 @@ source(here::here("R/create_pdfs.R"), encoding = "UTF-8")
 source(here::here("R/create_tables.R"), encoding = "UTF-8")
 
 
+Sys.setenv(R_CONFIG_ACTIVE = "default")
 
-
-#02  Adjust tmp parameters######################################################
+#Parameters######################################################
 tmp.snr <- "6009"
-
-#UBB TRUE or FALSE
 tmp.ubb <- FALSE
-
 #Report for: tmp.audience == sus, leh, elt, all, ubb, aus
 tmp.audience <- "leh"
-
-#Report results (Text) for PDF
 tmp.results <- "Testrun"
-
-
-#beru_bq
 tmp.stype <- "zspf_fz"
 tmp.ganztag <- FALSE
-
-
-
-#03 Get meta and limesurvey parameters##########################################
 
 get_parameter(snr = tmp.snr,
               audience = tmp.audience,
@@ -44,22 +32,14 @@ run()
 
 
 
-
-
-
-#Drop BS data still?
+#Drop BS data ... still?
 #tmp.data <- tmp.data |> dplyr::filter(vals != "k. A.")
 #tmp.data <- tmp.data |> dplyr::filter(vals != " ")
 
 
 
-#Helper to Create prod
-
-
+#Helper for Prod
 #sessioninfo::session_info(to_file = "session.log", info = "all" )
-
-
-
 #renv::activate()
 #renv::snapshot()
 #renv::deactivate()

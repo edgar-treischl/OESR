@@ -49,8 +49,11 @@ get_table = function (meta,
   labelset <- unique(data$set)
 
   #get colorscheme for the table
-  tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                        sheet = 'sets') |>
+  tmp.item.labels <- MetaMaster::DB_Table("sets")
+  # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+  #                                       sheet = 'sets')
+
+  tmp.item.labels <- tmp.item.labels |>
     dplyr::filter(
       set == labelset
     ) |>

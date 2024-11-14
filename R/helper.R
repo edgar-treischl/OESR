@@ -22,12 +22,11 @@ folder_exist <- function(folder) {
 #' @param folderlist Folderlist
 
 create_folder = function (folderlist = c("res", "doc", "log", "orig", "prog")) {
-  #flist <- c("res", "doc", "log", "orig", "prog")
+
   folder_created <- lapply(folderlist, folder_exist) |> unlist()
 
   if (is.null(folder_created) == FALSE) {
     invisible(lapply(folder_created, dir.create, "."))
-    #usethis::ui_done("Folder created.")
     for (x in folder_created) {
       usethis::ui_done("Folder {usethis::ui_value(x)} created.")
     }
@@ -57,21 +56,10 @@ create_directories <- function (snr, audience, ubb) {
   #Create path for subfolders (e.g. sus)
   tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
 
-  # #create folder for audience
-  # if (ganztag == TRUE & audience == "sus") {
-  #   tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
-  # }else {
-  #   tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
-  # }
-
   #Create folder if not exist
   if(!dir.exists(tmp.dir_res)){
     dir.create(here::here(tmp.dir_res))
   }
-
-  # if(!dir.exists(here::here(tmp.dir_res, "data"))){
-  #   dir.create(here::here(tmp.dir_res, "data"))
-  # }
 
   if(!dir.exists(here::here(tmp.dir_res, "plots"))){
     dir.create(here::here(tmp.dir_res, "plots"))
@@ -86,8 +74,6 @@ create_directories <- function (snr, audience, ubb) {
   if (ubb == TRUE) {
     file.copy(here::here("tmplts/template_ubb.Rmd"), here::here(tmp.dir_res, "plots"))
     file.copy(here::here("tmplts/graphic_title_ubb.png"), here::here(tmp.dir_res, "plots"))
-    #file.copy(here::here("tmplts/template_ubb_html.Rmd"), here::here(tmp.dir_res, "plots"))
-    #file.copy(here::here("tmplts/style.css"), here::here(tmp.dir_res, "plots"))
     file.rename(from = here::here(tmp.dir_res, "plots/", "template_ubb.Rmd"),
                 to = here::here(tmp.dir_res, "plots/", "template.Rmd"))
   }
@@ -95,8 +81,6 @@ create_directories <- function (snr, audience, ubb) {
   if (ubb == FALSE) {
     file.copy(here::here("tmplts/template_generale.Rmd"), here::here(tmp.dir_res, "plots"))
     file.copy(here::here("tmplts/graphic-title_bfr.png"), here::here(tmp.dir_res, "plots"))
-    #file.copy(here::here("tmplts/template_html.Rmd"), here::here(tmp.dir_res, "plots"))
-    #file.copy(here::here("tmplts/style.css"), here::here(tmp.dir_res, "plots"))
 
     file.rename(from = here::here(tmp.dir_res, "plots", "template_generale.Rmd"),
                 to = here::here(tmp.dir_res, "plots", "template.Rmd"))
@@ -123,21 +107,7 @@ create_directories <- function (snr, audience, ubb) {
 }
 
 
-#' Superseded: Create a report folder
-#'
-#' \code{reportCreateDir()} Erstellen eines Reportordners
-#' @details Create a report folder (SNR and Year)
-#' @param tmp.dir (string)
-#' @return empty
-#'
-# reportCreateDir <- function(tmp.dir){
-#   path <- paste0(here::here(), tmp.dir)
-#
-#   if(!dir.exists(path)){
-#     dir.create(path)
-#   }
-# }
-#
+
 
 
 get_directory <- function(snr) {
@@ -331,22 +301,6 @@ create_reports <- function(snr,
     assign("tmp.meta", value = tmp.meta, envir=globalenv())
   }
 
-  # if (interactive() == TRUE) {
-  #   cli::cli_alert_success("All parameters set.")
-  #   return(tmp.data)
-  # }
-
-
-  # get_parameter(server = tmp.server,
-  #               user = tmp.user,
-  #               credential = tmp.credential,
-  #               snr = snr,
-  #               audience = audience,
-  #               ubb = ubb,
-  #               ganztag = ganztag,
-  #               stype = stype,
-  #               logger = tmp.log)
-
 
   cli::cli_progress_step("Create data and plots:", spinner = TRUE)
   #create_allplots(meta = tmp.meta,
@@ -386,83 +340,43 @@ create_reports <- function(snr,
   cli::cli_progress_update()
 }
 
-#' Create log
-#' @description Create log file for a report.
-#' @param snr Schoolnumber
-#' @param year Year
-#' @param audience Reporting group
-#' @param logger tmp.logile
-
-
-
-create_log <- function (snr,
-                        year,
-                        audience,
-                        logger) {
-
-  if (logger == TRUE) {
-    tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience, "/")
-
-    #Del old logs if available
-    logfiles <- list.files(path = here::here(tmp.dir_res),
-                           pattern = ".log", full.names = T)
-
-    if (length(logfiles) > 0) {
-      unlink(logfiles)
-    }
-
-
-    #tmp.log.name <- paste0(lubridate::today(), "_", snr, "_")
-    log_file <- tempfile(pattern = "log_",
-                         tmpdir = here::here(tmp.dir_res), fileext = ".log")
-    log <- log4r::logger(appenders = log4r::file_appender(log_file))
-    assign("log", value = log, envir=globalenv())
-    #log4r::info(log, glue::glue("Log for school: {snr}"))
-  }
-}
-
-
-#' Get the raw data from LimeSurvey: Superseded by get_rprtpckg
+#' #' Superseded Create log
+#' #' @description Create log file for a report.
+#' #' @param snr Schoolnumber
+#' #' @param year Year
+#' #' @param audience Reporting group
+#' #' @param logger tmp.logile
 #'
-#' @param server Placeholder for server
-#' @param user User name
-#' @param credential Limesurvey credential
-#' @param ubb Data for UBB
+#'
+#'
+#' create_log <- function (snr,
+#'                         year,
+#'                         audience,
+#'                         logger) {
+#'
+#'   if (logger == TRUE) {
+#'     tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience, "/")
+#'
+#'     #Del old logs if available
+#'     logfiles <- list.files(path = here::here(tmp.dir_res),
+#'                            pattern = ".log", full.names = T)
+#'
+#'     if (length(logfiles) > 0) {
+#'       unlink(logfiles)
+#'     }
+#'
+#'
+#'     #tmp.log.name <- paste0(lubridate::today(), "_", snr, "_")
+#'     log_file <- tempfile(pattern = "log_",
+#'                          tmpdir = here::here(tmp.dir_res), fileext = ".log")
+#'     log <- log4r::logger(appenders = log4r::file_appender(log_file))
+#'     assign("log", value = log, envir=globalenv())
+#'     #log4r::info(log, glue::glue("Log for school: {snr}"))
+#'   }
+#' }
 
-# get_raw_limesurvey <- function (server = NULL,
-#                                 user,
-#                                 credential,
-#                                 ubb,
-#                                 snr,
-#                                 audience,
-#                                 response) {
-#   #Connect with Limesurvey
-#   tmp.session <- surveyConnectLs(user = user,
-#                                  credential = credential)
-#
-#   #Get data and meta data
-#   tmp.sids.df <- surveyGetSurveyIds(snr, year, ubb)
-#
-#   #Get report package
-#   tmp.sids <- tmp.sids.df$sid
-#
-#   if (length(tmp.sids) == 0) {
-#     cli::cli_abort("Error in surveyGetSurveyIds")
-#   }
-#
-#   #old
-#   tmp.rprtpckg <- surveyGetSurveyRprtpckg(tmp.sids.df)
-#   #new
-#
-#
-#
-#   #Error if data is not available:
-#   tmp.data <- surveyGetDataLongformat(tmp.sids, ubb, response)
-#
-#   limerlist <- list(tmp.sids.df, tmp.sids, tmp.rprtpckg, tmp.data)
-#   return(limerlist)
-#
-# }
+
+
 
 #' Run
 #' @description Run all functions to create a report at once
@@ -474,14 +388,8 @@ run <- function (...) {
   assign("ubb", value = tmp.ubb, envir=globalenv())
 
   if (interactive() == TRUE) {
-    #cli::cli_progress_update();
     cli::cli_progress_step("Create data and plots", spinner = TRUE)
   }
-
-  #OLD approach
-  # create_allplots2(meta = tmp.meta,
-  #                  audience = tmp.audience,
-  #                  ubb = tmp.ubb)
 
   create_allplots2(meta = tmp.meta,
                    audience = tmp.audience,
@@ -497,17 +405,6 @@ run <- function (...) {
     cli::cli_progress_step("Export report infos", spinner = TRUE)
   }
 
-  #export_headers(tmp.meta, ubb = tmp.ubb)
-
-  #Render results for tables
-  # if (interactive() == TRUE) {
-  #   cli::cli_progress_update();
-  #   cli::cli_progress_step("Render tables", spinner = TRUE)
-  # }
-  #
-  #OLD approach
-  #export_tables(meta = tmp.meta, audience = tmp.audience, ubb = tmp.ubb)
-
   export_tables(meta = tmp.meta,
                 data = tmp.data,
                 snr = tmp.snr,
@@ -521,14 +418,7 @@ run <- function (...) {
     cli::cli_progress_update();
     cli::cli_progress_step("Render results", spinner = TRUE)
   }
-  #OLD
-  # create_pdfs(snr = tmp.snr,
-  #             audience = tmp.audience,
-  #             name = tmp.name,
-  #             ubb = tmp.ubb,
-  #             n = tmp.n,
-  #             d = tmp.dauer,
-  #             results = tmp.results)
+
   create_pdfs(snr = tmp.snr,
               audience = tmp.audience,
               name = tmp.name,
@@ -575,10 +465,6 @@ run_aslist <- function(snr,
 
   cli::cli_progress_step("Create data and plots:", spinner = TRUE)
 
-  #OLD
-  # create_allplots2(meta = tmp.meta,
-  #                  audience = audience,
-  #                  ubb = ubb)
 
   create_allplots2(meta = tmp.meta,
                    audience = audience,
@@ -588,7 +474,6 @@ run_aslist <- function(snr,
                    ubb = ubb)
 
   cli::cli_progress_step("Export tables:", spinner = TRUE)
-  #export_tables(meta = tmp.meta, audience = audience, ubb = ubb)
 
   export_tables(meta = tmp.meta,
                 data = tmp.data,
