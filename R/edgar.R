@@ -10,8 +10,6 @@ source(here::here("R/create_tables.R"), encoding = "UTF-8")
 
 
 
-#set_parameters()
-
 
 #02  Adjust tmp parameters######################################################
 tmp.snr <- "6009"
@@ -25,11 +23,6 @@ tmp.audience <- "leh"
 #Report results (Text) for PDF
 tmp.results <- "Testrun"
 
-
-#tmp.credential <- "IWBD3SnMfxcu"
-#tmp.server <- "semiotikon"
-#tmp.server <- "hws"
-#tmp.user <- "limeremote"
 
 #beru_bq
 tmp.stype <- "zspf_fz"
