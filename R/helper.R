@@ -186,7 +186,6 @@ create_reports <- function(snr,
 
   #Create directories under res
   year <- format(Sys.Date(), "%Y")
-  logger <- tmp.log
   create_directories(snr = snr,
                      audience = audience,
                      ubb = ubb)
@@ -267,11 +266,6 @@ create_reports <- function(snr,
     cli::cli_alert_success("Downloaded data from LimeSurvey.")
   }else {
     cli::cli_alert_warning("Cannot download data from LimeSurvey.")
-  }
-
-  #LOG
-  if (logger == TRUE & exists("tmp.data", envir = globalenv()) == FALSE) {
-    log4r::info(log, glue::glue("Cannot download data from LimeSurvey."))
   }
 
 

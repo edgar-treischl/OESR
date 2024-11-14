@@ -19,7 +19,7 @@ params:
 
 
 ```{r, include=FALSE}
-source(here::here("prog/source.R"), encoding = "UTF-8")
+source(here::here("R/source.R"), encoding = "UTF-8")
 
 
 headers_df <- export_headers(tmp.meta, 

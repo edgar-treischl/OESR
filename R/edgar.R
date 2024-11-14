@@ -4,11 +4,17 @@ source(here::here("R/limer.R"), encoding = "UTF-8")
 source(here::here("R/source.R"), encoding = "UTF-8")
 source(here::here("R/checks.R"), encoding = "UTF-8")
 
+source(here::here("R/create_graphs.R"), encoding = "UTF-8")
+source(here::here("R/create_pdfs.R"), encoding = "UTF-8")
+source(here::here("R/create_tables.R"), encoding = "UTF-8")
+
+
+
 #set_parameters()
 
 
 #02  Adjust tmp parameters######################################################
-tmp.snr <- "0003"
+tmp.snr <- "6009"
 
 #UBB TRUE or FALSE
 tmp.ubb <- FALSE
@@ -26,9 +32,8 @@ tmp.results <- "Testrun"
 #tmp.user <- "limeremote"
 
 #beru_bq
-tmp.stype <- "gy"
+tmp.stype <- "zspf_fz"
 tmp.ganztag <- FALSE
-tmp.log <- TRUE
 
 
 
@@ -38,8 +43,7 @@ get_parameter(snr = tmp.snr,
               audience = tmp.audience,
               ubb = tmp.ubb,
               ganztag = tmp.ganztag,
-              stype = tmp.stype,
-              logger = tmp.log)
+              stype = tmp.stype)
 
 
 

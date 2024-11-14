@@ -11,7 +11,6 @@
 # library(usethis)
 # library(openxlsx)
 # library(rmarkdown)
-# library(log4r)
 # library(svglite)
 # library(rsvg)
 
@@ -500,10 +499,6 @@ create_allplots = function (meta,
     cli::cli_abort("Plotid or report template not found in meta list.")
   }
 
-  if (tmp.log == TRUE & length(meta) == 0) {
-    log4r::info(log, "Plotid or reporttemplate not found in meta list.")
-  }
-
   #Split meta data
   tmp.var <- stringr::str_split(meta,"#") |> unlist()
   tmp.rprtpckg <- tmp.var[1]
@@ -528,13 +523,6 @@ create_allplots = function (meta,
     usethis::ui_done("Exported {usethis::ui_value(count_raw)} raw files")
   }
 
-  #Logs
-  if (tmp.log == TRUE & count_raw == 0) {
-    log4r::info(log, "Error from create_plot() function. No exported raw files.")
-  } else {
-    log4r::info(log, glue::glue("Exported {usethis::ui_value(count_raw)} raw files"))
-  }
-
   #Convert all data set to pngs and report via CLI:
   plotConvertRawAndSave()
 
@@ -548,66 +536,11 @@ create_allplots = function (meta,
     usethis::ui_done("Exported {usethis::ui_value(count_png)} png files.")
   }
 
-  #Logs
-  if (tmp.log == TRUE & count_png == 0) {
-    log4r::error(log, "Error from plotConvertRawAndSave(). No exported png files.")
-  } else {
-    log4r::info(log, glue::glue("Exported {usethis::ui_value(count_png)} png files."))
-  }
-
 }
 
 
 
-#' Create all report plots at once simplified
-#' @description Create all report plots at once simplified, direct export of pngs
-#' @param meta Meta data
-#' @param audience audience
-#' @param ubb TRUE or FALSE
 
-create_allplots2 = function (meta,
-                             snr,
-                             audience,
-                             report,
-                             data,
-                             ubb) {
-
-  #Check if meta data is available
-  if (length(meta) == 0) {
-    cli::cli_abort("Plotid or report template not found in meta list.")
-  }
-
-  if (tmp.log == TRUE & length(meta) == 0) {
-    log4r::info(log, "Plotid or reporttemplate not found in meta list.")
-  }
-
-  #Split meta data and run export_plot
-  tmp.var <- stringr::str_split(meta,"#") |> unlist()
-  tmp.rprtpckg <- tmp.var[1]
-  tmp.plotid <- tmp.var[2]
-
-  #NEW export_plot without saving RDS
-  invisible(lapply(meta, export_plot,
-                   audience = audience,
-                   ubb = ubb,
-                   data = data,
-                   snr = snr,
-                   report = report))
-
-  #What will be exported
-  #all_files <- list.files(path = here::here(tmp.dir_res, "plots"), pattern = "_plot.pdf")
-  all_files <- here::here()
-  count_png <- length(all_files)
-
-  #Inform what was exported
-  if (count_png == 0) {
-    log4r::error(log, "Error from export_plot(). No exported png files.")
-    usethis::ui_warn("Error. No exported png files.")
-  } else {
-    usethis::ui_done("Exported {usethis::ui_value(count_png)} graphs.")
-  }
-
-}
 
 
 #' Abrufen der Metadaten fuer ein Befragungspaket
@@ -1364,9 +1297,6 @@ get_n = function (audience,
 #   if (length(tmp.survey) == 0) {
 #     cli::cli_abort("Cannot find survey template.")
 #     #stop("Cannot find survey template.")
-#     if (tmp.log == TRUE) {
-#       log4r::error(log, "Cannot find survey template.")
-#     }
 #   }
 #
 #
@@ -1519,211 +1449,7 @@ export_headers <- function (meta,
 }
 
 
-#' Export plots
-#' @description Function to export pngs directly.
-#' @param meta Meta data
-#' @param audience audience
-#' @param ubb TRUE or FALSE
-#'
-#' @param export TRUE or FALSE
 
-
-export_plot = function (meta,
-                        snr,
-                        audience,
-                        report,
-                        data,
-                        ubb,
-                        export = TRUE) {
-
-  #Split meta list
-  tmp.var <- stringr::str_split(meta,"#") |> unlist()
-  tmp.rprtpckg <- tmp.var[1]
-  tmp.plotid <- tmp.var[2]
-
-  #.GlobalEnv$tmp.data
-  #Get data
-  tmp.tab <- plotGetData(data = data,
-                         plotid = tmp.plotid,
-                         rprtpckg = tmp.rprtpckg,
-                         report = report,
-                         audience  = audience)
-
-  #Get set
-  tmp.set <- tmp.tab |>
-    dplyr::group_by(set) |>
-    dplyr::summarise(anz = dplyr::n()) |>
-    dplyr::select(set) |>
-    unlist()
-
-  #Labels
-  tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                        sheet = 'sets') |>
-    dplyr::filter(
-      set == tmp.set
-    ) |>
-    dplyr::arrange(
-      dplyr::desc(sort)
-    )
-
-
-  data <- tmp.tab
-
-
-  tmp.var_plot <- length(unique(data$vars))
-  #assign("tmp.var_plot", value = tmp.var_plot, envir=globalenv())
-
-
-
-  #Manual adjustments for filter questions
-  #filterlist <- c("W2a", "W2leh", "w2use", "w33a")
-  filterlist <- get_filtervars()
-
-  data <- data |> dplyr::filter(vals != "k. A.")
-
-  # if ((tmp.plotid %in% filterlist) == TRUE) {
-  #   #data <- data |> dplyr::filter(vals != "k. A.")
-  #   data <- data |> dplyr::filter(vals != " ")
-  # }
-
-  # if (tmp.plotid == "A3b" & ubb == TRUE) {
-  #   data <- data |> dplyr::filter(vals != "NA")
-  # }
-  #
-  # if (tmp.plotid == "W2b" & ubb == TRUE) {
-  #   data <- tidyr::drop_na(data)
-  # }
-
-
-  #data$txtlabel <- paste0(data$label_n, "\n (n: ", data$anz, ")")
-
-  las_theme <- ggplot2::theme(
-    #axis.title.x = ggplot2::element_blank(),
-    legend.position = "none",
-    axis.text.x = ggplot2::element_text(size = 11),
-    axis.title.y = ggplot2::element_blank(),
-    axis.text.y = ggplot2::element_text(size = 12),
-    plot.margin = ggplot2::margin(t = 10,  # Top margin
-                                  r = 0,  # Right margin
-                                  b = 10,  # Bottom margin
-                                  l = 0)) # Left margin
-
-  #Plots for UBB (absolute values) vs. survey (relative values) label_n
-  if (ubb == FALSE) {
-    data$newlable <- paste0(data$vars, ": ", data$label_short)
-    data$newlable <- as.factor(data$newlable)
-
-    tmp.p <- ggplot2::ggplot(data, ggplot2::aes(fill = vals, y = p, x = newlable)) +
-      ggplot2::geom_bar(
-        stat = 'identity',
-        position = ggplot2::position_stack(),
-        width = 0.5
-      ) +
-      ggplot2::geom_label(
-        ggplot2::aes(label = label_n, group = factor(vals)),
-        position = ggplot2::position_stack(vjust = 0.5),
-        size = 2.8,
-        fill = "white",
-        colour = "black"
-      ) +
-      ggplot2::scale_fill_manual(
-        breaks = rev(tmp.item.labels$labels),
-        values = rev(tmp.item.labels$colors),
-        drop = TRUE
-      ) +
-      ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge = 1),
-                                labels = function(x)
-                                  stringr::str_wrap(x, width = 40),
-                                limits = rev(levels(data$newlable))) +
-      ggplot2::coord_flip() +
-      ggplot2::theme_minimal(base_size = 12) +
-      ggplot2::theme(
-        legend.position = "bottom",
-        axis.text = ggplot2::element_text(size = 10),
-        #legend.text = ggplot2::element_text(size=8),
-        axis.text.y = ggplot2::element_text(hjust = 0)
-      ) +
-      ggplot2::labs(x = '', y = 'Prozent', fill = "") +
-      ggplot2::guides(fill  =  ggplot2::guide_legend(nrow = 2))+
-      las_theme
-
-  }
-
-  if (ubb == TRUE) {
-    data$newlable <- data$label_short
-    data$newlable <- as.factor(data$newlable)
-
-    tmp.p <- ggplot2::ggplot(data, ggplot2::aes(fill = vals, y = anz, x =
-                                                  newlable)) +
-      ggplot2::geom_bar(
-        stat = 'identity',
-        position = ggplot2::position_stack(),
-        width = 0.5
-      ) +
-      ggplot2::geom_label(
-        ggplot2::aes(label = as.character(anz), group = factor(vals)),
-        position = ggplot2::position_stack(vjust = 0.5),
-        size = 2.8,
-        fill = "white",
-        colour = "black"
-      )+
-      ggplot2::scale_fill_manual(
-        breaks = rev(tmp.item.labels$labels),
-        values = rev(tmp.item.labels$colors),
-        drop = TRUE
-      ) +
-      ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge = 1),
-                                labels = function(x)
-                                  stringr::str_wrap(x, width = 40),
-                                limits = rev(levels(data$newlable))) +
-      ggplot2::scale_y_continuous(breaks = scales::pretty_breaks())+
-      ggplot2::coord_flip() +
-      ggplot2::theme_minimal(base_size = 12) +
-      ggplot2::theme(
-        legend.position = "bottom",
-        axis.text = ggplot2::element_text(size = 11),
-        #legend.text = ggplot2::element_text(size=8),
-        axis.text.y = ggplot2::element_text(hjust = 0)
-      ) +
-      ggplot2::labs(x = '', y = 'Anzahl', fill = "")+
-      las_theme
-
-  }
-
-  #height_plot <- (148/4)*tmp.var_plot
-
-
-  if (export == TRUE) {
-
-    height_plot <- 148
-
-    if (tmp.var_plot == 2) {
-      height_plot <- 100
-    }
-
-    if (tmp.var_plot == 1) {
-      height_plot <- 80
-    }
-
-
-    tmp.dir_res <- get_directory_res(snr = snr, audience = audience)
-    #tmp.dir_res <- here::here()
-
-    ggplot2::ggsave(paste0(tmp.plotid,'_plot.pdf'),
-                    path =  paste0(tmp.dir_res, "/plots"),
-                    plot = tmp.p,
-                    width = 210,
-                    height = height_plot,
-                    dpi = 300,
-                    units = "mm"
-    )
-    if (interactive() == TRUE) {
-      usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
-    }
-  }
-  return(tmp.p)
-
-}
 
 
 
@@ -1798,10 +1524,6 @@ create_pdfs <- function (snr,
     invisible(system(paste0('open ', x)))
   }
 
-  if (tmp.log == TRUE & file.exists(x) == FALSE) {
-    log4r::error(log, glue::glue("Cannot render PDF file."))
-  }
-
 }
 
 
@@ -1864,10 +1586,6 @@ create_pdfs <- function (snr,
 #     invisible(system(paste0('open ', x)))
 #   }
 #
-#   #Log error
-#   if (tmp.log == TRUE & file.exists(x) == FALSE) {
-#     log4r::info(log, glue::glue("Check create_html() function. Cannot render HTML file."))
-#   }
 #
 #
 # }
@@ -1885,7 +1603,6 @@ create_pdfs <- function (snr,
 #' @param ubb UBB TRUE or FALSE
 #' @param stype School type
 #' @param ganztag Ganztag TRUE or FALSE
-#' @param logger Logfile TRUE or FALSE
 #'
 #' @return List of parameters
 
@@ -1893,8 +1610,7 @@ get_parameter <- function (snr,
                            audience,
                            ubb,
                            stype,
-                           ganztag,
-                           logger) {
+                           ganztag) {
 
 
   tmp.server <- config::get("tmp.server")
@@ -1903,20 +1619,10 @@ get_parameter <- function (snr,
 
   #Create directories under res
   year <- format(Sys.Date(), "%Y")
-  logger <- tmp.log
 
   create_directories(snr = snr,
                      audience = audience,
                      ubb = ubb)
-
-
-  #Create log file
-  if (tmp.log == TRUE) {
-    create_log(snr,
-               year,
-               audience,
-               logger = tmp.log)
-  }
 
   #Get name of school
   tmp.name <- get_sname(snr)
@@ -1989,11 +1695,6 @@ get_parameter <- function (snr,
     cli::cli_alert_warning("Cannot download data from LimeSurvey.")
   }
 
-  #LOG
-  if (logger == TRUE & exists("tmp.data", envir = globalenv()) == FALSE) {
-    log4r::info(log, glue::glue("Cannot download data from LimeSurvey."))
-  }
-
 
   #N to print in report
   tmp.n <- get_n(audience, data = tmp.sids.df)
@@ -2057,388 +1758,6 @@ get_parameter <- function (snr,
 
 
 
-#' Get table
-#' @description Get a flextable for RAW data input
-#' @param meta Metadata
-#' @param audience Audience of the report
-#' @param export Export
-#' @param ubb UBB TRUE or FALSE
-#' @return A flextable
-
-
-get_table = function (meta,
-                      snr,
-                      audience,
-                      report,
-                      data,
-                      export = FALSE,
-                      ubb) {
-
-  #Split meta data
-  tmp.var <- stringr::str_split(meta,"#") |> unlist()
-  tmp.rprtpckg <- tmp.var[1]
-  tmp.plotid <- tmp.var[2]
-
-  #Get data
-  # data <- plotGetData(.GlobalEnv$tmp.data,
-  #                        plotid = tmp.plotid,
-  #                        rprtpckg = tmp.rprtpckg,
-  #                        audience  = audience)
-
-  #.GlobalEnv$tmp.data
-  data <- plotGetData(data = data,
-                      plotid = tmp.plotid,
-                      rprtpckg = tmp.rprtpckg,
-                      report = report,
-                      audience  = audience)
-
-  #Manual adjustments for Plot A3b and W2b
-  if (tmp.plotid == "A3b" & ubb == TRUE) {
-    data$vals <- as.character(data$vals)
-    data$vals[is.na(data$vals)] <- "Nein"
-    #data$vals <- tidyr::replace_na(data$vals, "Nein")
-
-  }
-
-  if (tmp.plotid == "W2b" & ubb == TRUE) {
-    data <- tidyr::drop_na(data)
-  }
-
-  #labelset for the table header
-  labelset <- unique(data$set)
-
-  #get colorscheme for the table
-  tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                        sheet = 'sets') |>
-    dplyr::filter(
-      set == labelset
-    ) |>
-    dplyr::arrange(
-      dplyr::desc(sort)
-    )
-
-  colorscheme <- rev(tmp.item.labels$colors)
-  txtcolorscheme <- rev(tmp.item.labels$text_color)
-  txtcolorscheme <- c("white", txtcolorscheme)
-
-  #Different tables depending on length (columns)
-  lenght_colorscheme <- length(colorscheme)
-
-
-  #Make characters for the table
-  data$label_n <- paste0(as.character(data$anz), "\n (",data$label_n, ")")
-
-  df <- data |> dplyr::select(vars, vals, label_short, label_n) |>
-    dplyr::group_by(vars, vals) |>
-    tidyr::pivot_wider(names_from = vals, values_from = label_n)
-
-
-
-  #Arrange columns like in meta list
-  arranged_labels <- tmp.item.labels |> dplyr::arrange(sort) |> dplyr::pull(labels)
-
-  #Check if all labels are included in the data
-  included_labels <- names(df)
-  label_diff <- setdiff(arranged_labels, included_labels)
-
-  #If not, add columns with NA
-  if (length(label_diff) > 0){
-    for (i in label_diff){
-      df[[i]] <- " "
-    }
-  }
-
-
-  #Arrange columns
-  dftable <- df |>
-    dplyr::select(all_of(c("vars", "label_short", arranged_labels)))
-
-
-  #Rename columns vars = Variable, and label_short as Label
-  dftable <- dftable |>
-    dplyr::rename(variable = vars, label = label_short)
-
-  #combine var and label
-  if (ubb == TRUE) {
-    dftable$variable <- dftable$label
-  }else {
-    dftable$variable <- paste0(dftable$variable, " (", dftable$label, ")")
-  }
-
-
-
-  #Remove label
-  dftable <- dftable |>
-    dplyr::select(-label)
-
-  if (ubb == FALSE) {
-    #Create flextable depending on length of columns:
-    #2
-    if (lenght_colorscheme == 2) {
-      ft <- dftable |>
-        flextable::flextable()|>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::color(j=c(1:3), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 3, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-      ft <- ft |> flextable::autofit()
-
-    }
-
-
-    #Create flextable depending on length of columns:
-    #3
-    if (lenght_colorscheme == 3) {
-      ft <- dftable |>
-        flextable::flextable()|>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header")|>
-        flextable::color(j=c(1:4), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 5, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-
-    }
-
-    #Create flextable depending on length of columns:
-    #4
-    if (lenght_colorscheme == 4) {
-      ft <- dftable |>
-        flextable::flextable()|>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="all") |>
-        flextable::color(j=c(1:5), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 5, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-
-    }
-
-    #Create flextable depending on length of columns:
-    #5
-    if (lenght_colorscheme == 5) {
-
-      ft <- dftable |>
-        flextable::flextable() |>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="header") |>
-        flextable::bg(j=6, bg=colorscheme[5], part ="all") |>
-        flextable::color(j=c(1:6), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 6, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-
-    }
-
-    #Create flextable depending on length of columns:
-    #6
-
-    if (lenght_colorscheme == 6) {
-      ft <- dftable |>
-        flextable::flextable() |>
-        flextable::set_header_labels(variable = "Item") |>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="header") |>
-        flextable::bg(j=6, bg=colorscheme[5], part ="header") |>
-        flextable::bg(j=7, bg=colorscheme[6], part ="all") |>
-        flextable::color(j=c(1:7), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 7, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-
-    }
-
-    #Create flextable depending on length of columns:
-    #7
-
-    if (lenght_colorscheme == 7) {
-      ft <- dftable |>
-        flextable::flextable()|>
-        flextable::bg(bg="white", part ="all") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="header") |>
-        flextable::bg(j=6, bg=colorscheme[5], part ="header") |>
-        flextable::bg(j=7, bg=colorscheme[6], part ="header") |>
-        flextable::bg(j=8, bg=colorscheme[7], part ="all") |>
-        flextable::color(j=c(1:8), color=txtcolorscheme, part="header") |>
-        flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 8, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
-        flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
-        flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
-        flextable::italic(j=ncol(dftable), italic=T, part="all")
-
-    }
-  }
-
-
-  if (ubb == TRUE) {
-
-    table_min <- dftable |>
-      flextable::flextable() |>
-      flextable::bg(bg="white", part ="all") |>
-      flextable::line_spacing(space = 1.2, part = "all") |>
-      flextable::fontsize(size = 10, part = "all") |>
-      flextable::align(j=2:(ncol(dftable)), align="center", part="body") |>
-      flextable::align(j=2:(ncol(dftable)), align="center", part="header")
-
-
-    if (lenght_colorscheme == 1) {
-      #1
-      ft <- table_min |>
-        flextable::width(j = 1, 13, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)), 2, unit="cm") |>
-        flextable::color(j=c(1:2), color=txtcolorscheme, part="header") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header")
-    }
-
-    if (lenght_colorscheme == 2) {
-      #2
-      ft <- table_min |>
-        flextable::width(j = 1, 11, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)), 2, unit="cm") |>
-        flextable::color(j=c(1:3), color=txtcolorscheme, part="header") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header")
-    }
-
-    if (lenght_colorscheme == 3) {
-      #3
-      ft <- table_min |>
-        flextable::width(j = 1, 9, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)), 2, unit="cm") |>
-        flextable::color(j=c(1:4), color=txtcolorscheme, part="header") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header")
-    }
-
-    if (lenght_colorscheme == 4) {
-      ft <- table_min |>
-        flextable::width(j = 1, 7, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)), 2, unit="cm") |>
-        flextable::color(j=c(1:5), color=txtcolorscheme, part="header") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="header")
-    }
-
-    if (lenght_colorscheme == 5) {
-      ft <- table_min |>
-        flextable::width(j = 1, 5, unit="cm") |>
-        flextable::width(j=2:(ncol(dftable)), 2, unit="cm") |>
-        flextable::color(j=c(1:6), color=txtcolorscheme, part="header") |>
-        flextable::bg(j=2, bg=colorscheme[1], part ="header") |>
-        flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
-        flextable::bg(j=4, bg=colorscheme[3], part ="header") |>
-        flextable::bg(j=5, bg=colorscheme[4], part ="header") |>
-        flextable::bg(j=6, bg=colorscheme[5], part ="header")
-    }
-
-
-
-  }
-
-
-  if (export == TRUE) {
-    tmp.dir_res <- get_directory_res(snr = snr, audience = audience)
-    mypath <- paste(paste0(tmp.dir_res, '/plots/', tmp.plotid,'_table.svg'))
-    flextable::save_as_image(x = ft, path = mypath)
-
-    if (interactive() == TRUE) {
-      usethis::ui_done("Export table: {usethis::ui_value(tmp.plotid)}")
-    }
-
-  }else {
-    return(ft)
-  }
-
-}
-
-
-#' Export tables
-#' @description Export all plots as svg and convert them to PDFs
-#' @param meta Meta data
-#' @param audience Reporting group
-#' @param ubb UBB TRUE or FALSE
-#'
-#' @return A flextable
-
-export_tables = function (meta,
-                          snr,
-                          data,
-                          audience,
-                          report,
-                          ubb) {
-
-  #RUN get_table for all tables
-  invisible(lapply(meta, get_table,
-                   data = data,
-                   audience = audience,
-                   ubb = ubb,
-                   report = report,
-                   snr = snr,
-                   export = TRUE))
-
-  #List svg tables
-  tmp.dir_res <- get_directory_res(snr = snr, audience = audience)
-  mysvgs <- list.files(path = paste0(tmp.dir_res, "/plots"),
-                       pattern = ".svg",
-                       full.names = FALSE)
-
-  #List svg table paths
-  mysvgs_paths <- list.files(path = paste0(tmp.dir_res, "/plots"),
-                             pattern = ".svg", ignore.case = T,
-                             full.names = TRUE)
-
-
-  #create table.pdfS: name and paths
-  mypdfs <- paste0(tools::file_path_sans_ext(mysvgs), ".pdf")
-  mypath <- paste(paste0(tmp.dir_res, '/plots/', mypdfs))
-
-  #Convert to pdf
-  invisible(mapply(rsvg::rsvg_pdf, mysvgs_paths, file = mypath))
-  #Get rid of svgs
-  unlink(mysvgs_paths)
-
-}
 
 
 
