@@ -1,19 +1,3 @@
-# #Libs for manual runs######################################################
-# library(dplyr)
-# library(stringr)
-# library(cli)
-# library(tidyr)
-# library(base64enc)
-# library(here)
-# library(readxl)
-# library(ggplot2)
-# library(cowplot)
-# library(usethis)
-# library(openxlsx)
-# library(rmarkdown)
-# library(svglite)
-# library(rsvg)
-
 #' Connect with Limesurvey
 #'
 #' @description Verbindung mit Limesurvey aufbauen
@@ -114,32 +98,6 @@ surveyGetSurveyIds <- function(snr,
 
   return(tmp.surveys)
 }
-
-#' surveyGetSurveyRprtpckg: Superseded by get_rprtpckg
-#'
-#' @description Extrahiert aus den Metadaten der Survey den Namen des Beragungspakets
-#' @param tmp.sids.df snr (string vierstellig)
-#' @return vector mit Name des Befragungspakets
-#'
-
-# surveyGetSurveyRprtpckg <- function(tmp.sids.df){
-#   tmp.rprtpckg <- tmp.sids.df |>
-#     head(1) |>
-#     dplyr::select(
-#       surveyls_title
-#     ) |>
-#     dplyr::mutate(
-#       surveyls_title = surveyls_title |>
-#         stringr::str_sub(12, stringr::str_length(surveyls_title)) |>
-#         stringr::str_remove_all("_sus") |>
-#         stringr::str_remove_all("_leh") |>
-#         stringr::str_remove_all("_elt") |>
-#         stringr::str_remove_all("_aus"),
-#       surveyls_title = paste0("tmpl", surveyls_title)
-#     ) |>
-#     unlist()
-#   return(tmp.rprtpckg)
-# }
 
 
 
@@ -441,12 +399,6 @@ surveyGetDataLongformat <- function(ids,
 
 
 
-
-
-
-
-
-
 #' Abrufen der Metadaten fuer ein Befragungspaket
 #'
 #' @description Abrufen der Metadaten fuer ein Befragungspaket
@@ -467,8 +419,7 @@ plotGetMetaData <- function(rprtpckg,
   tmp.rprtpckg <- rprtpckg
   tmp.report <- report
 
-  report_templates <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                         sheet = "reports")
+  report_templates <- MetaMaster::DB_Table("reports")
 
 
   if (audience == "all") {
@@ -516,8 +467,9 @@ plotGetData <- function(data,
   tmp.report <- report
 
   #Get meta data
-  meta_raw  <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                              sheet = "reports")
+  meta_raw  <- MetaMaster::DB_Table("reports")
+
+
   #Filter report and plot
   tmp.vars <- meta_raw |>
     dplyr::filter(
@@ -543,8 +495,11 @@ plotGetData <- function(data,
   # )
 
   #Get item labels
-  tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                        sheet = 'sets') |>
+  tmp.item.labels <- MetaMaster::DB_Table("sets")
+  # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+  #                                       sheet = 'sets')
+
+  tmp.item.labels <- tmp.item.labels |>
     dplyr::filter(
       set == labelset
     ) |>
@@ -554,11 +509,6 @@ plotGetData <- function(data,
 
   tmp.vars2 <- tmp.vars |>
     dplyr::select(vars,plot,label_short,type)
-
-  #Old apprach: Filter for audience
-  # if (audience == "sus" | audience == "leh" | audience == "elt") {
-  #   tmp.vars2 <- tmp.vars2 |> dplyr::filter(type == audience)
-  # }
 
   #Join data with tmp.vars2
   #relationship = "many-to-many"
@@ -600,230 +550,10 @@ plotGetData <- function(data,
   return(tmp.data.plot)
 }
 
-#' Stacked Bar Grafik: Seperseded due to export_plot and create_allplots2
-#'
-#' @description Baut Balkendiagram aus Daten von plotGetData
-#' @param data Datensatz aus plotGetData()
-#' @param ubb ubb
-#' @return data.frame mit Daten fuer eine Grafik im Langformat
-#'
-# plotStackedBarCreate <- function(data, ubb){
-#
-#   tmp.set <- data |>
-#     dplyr::group_by(set) |>
-#     dplyr::summarise(anz = dplyr::n()) |>
-#     dplyr::select(set) |>
-#     unlist()
-#
-#   tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-#                                         sheet = 'sets') |>
-#     dplyr::filter(
-#       set == tmp.set
-#     ) |>
-#     dplyr::arrange(
-#       dplyr::desc(sort)
-#     )
-#
-#
-#   tmp.var_plot <- length(unique(data$vals))
-#   assign("tmp.var_plot", value = tmp.var_plot, envir=globalenv())
-#
-#   #Plots for UBB (absolute values) vs. survey (relative values) label_n
-#   if (ubb == FALSE) {
-#     data$newlable <- paste0(data$vars, ": ", data$label_short)
-#     data$newlable <- as.factor(data$newlable)
-#
-#
-#     las_theme <- ggplot2::theme(
-#       axis.title.x = ggplot2::element_blank(),
-#       legend.position = "none",
-#       axis.text.x = ggplot2::element_text(size = 10),
-#       axis.title.y = ggplot2::element_blank(),
-#       axis.text.y = ggplot2::element_text(size = 10),
-#       plot.margin = ggplot2::margin(t = 10,  # Top margin
-#                            r = 0,  # Right margin
-#                            b = 10,  # Bottom margin
-#                            l = 0)) # Left margin
-#
-#     tmp.p <- ggplot2::ggplot(data, ggplot2::aes(fill = vals, y = p, x = newlable)) +
-#       ggplot2::geom_bar(
-#         stat = 'identity',
-#         position = ggplot2::position_stack(),
-#         width = 0.5
-#       ) +
-#       ggplot2::geom_label(
-#         ggplot2::aes(label = label_n, group = factor(vals)),
-#         position = ggplot2::position_stack(vjust = 0.5),
-#         size = 2.8,
-#         fill = "white",
-#         colour = "black"
-#       ) +
-#       ggplot2::scale_fill_manual(
-#         breaks = rev(tmp.item.labels$labels),
-#         values = rev(tmp.item.labels$colors),
-#         drop = TRUE
-#       ) +
-#       ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge = 1),
-#                                 labels = function(x)
-#                                   stringr::str_wrap(x, width = 40),
-#                                 limits = rev(levels(data$newlable))) +
-#       ggplot2::coord_flip() +
-#       ggplot2::theme_minimal(base_size = 12) +
-#       ggplot2::theme(
-#         legend.position = "bottom",
-#         axis.text = ggplot2::element_text(size = 10),
-#         #legend.text = ggplot2::element_text(size=8),
-#         axis.text.y = ggplot2::element_text(hjust = 0)
-#       ) +
-#       ggplot2::labs(x = '', y = 'in Prozent', fill = "") +
-#       ggplot2::guides(fill  =  ggplot2::guide_legend(nrow = 2))+
-#       las_theme
-#
-#   }
-#
-#   if (ubb == TRUE) {
-#     data$newlable <- data$label_short
-#     data$newlable <- as.factor(data$newlable)
-#
-#     tmp.p <- ggplot2::ggplot(data, ggplot2::aes(fill = vals, y = anz, x =
-#                                                   newlable)) +
-#       ggplot2::geom_bar(
-#         stat = 'identity',
-#         position = ggplot2::position_stack(),
-#         width = 0.5
-#       ) +
-#       ggplot2::geom_label(
-#         ggplot2::aes(label = as.character(anz)),
-#         position = ggplot2::position_stack(vjust = .5),
-#         size = 3,
-#         fill = "white",
-#         colour = "black"
-#       ) +
-#       ggplot2::scale_fill_manual(
-#         breaks = rev(tmp.item.labels$labels),
-#         values = rev(tmp.item.labels$colors),
-#         drop = TRUE
-#       ) +
-#       ggplot2::scale_x_discrete(labels = scales::label_wrap(35),
-#                                 limits = rev(levels(data$newlable))) +
-#       ggplot2::coord_flip() +
-#       ggplot2::theme_minimal(base_size = 12) +
-#       ggplot2::theme(
-#         legend.position = "bottom",
-#         axis.text = ggplot2::element_text(size = 10),
-#         #legend.text = ggplot2::element_text(size=8),
-#         axis.text.y = ggplot2::element_text(hjust = 0)
-#       ) +
-#       ggplot2::labs(x = '', y = 'Anzahl', fill = "")
-#   }
-#
-#   return(tmp.p)
-# }
-
-#' Generische Funktion zum Erstellen von Grafiken:
-#'  Seperseded due to export_plot and create_allplots2
-#'
-#' @description Generische Funktion zum Erstellen von Grafiken
-#' @details
-#' Ruft mit Datensatz aus plotGetData, sowie Metadaten Schulart und Plotid
-#'  eine vordefinierte Grafikfunktion auf. Welches Labelset und
-#'  Welche Grafikfunktion stammt aus Meta Daten
-#'
-#' @param data Datensatz aus plotGetData()
-#' @param rprtpckg Reportpackage
-#' @param plotid PlotID
-#'
-#' @return list mit ggplot
-#'
-# plotCreateObject <- function(data, plotid, rprtpckg, ubb){
-#
-#   # meta <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-#   #                                        sheet = "reports")
-#
-#
-#   # meta <- meta |> dplyr::filter(
-#   #   plot == plotid & report == tmp.report
-#   # )
-#
-#   # func <- meta |>
-#   #   dplyr::select(func) |>
-#   #   unlist()
-#
-#   #Only one fun here => no longer in meta list
-#   func <- "plotStackedBarCreate"
-#
-#   whatubb <- ubb
-#
-#   code <- paste0("p <- ",func,"(data, ubb = ", whatubb, ")")
-#
-#   eval(parse(text = code))
-#
-#   return(p)
-# }
 
 
 
-#' Liest ggplot-Objekte aus Report-Dir und ruft reportPlotsSaveAsPng() auf.
-#'    Seperseded due to export_plot and create_allplots2
-#'
-#' @description Liest ggplot-Objekte aus Report-Dir und ruft reportPlotsSaveAsPng() auf.
-#' @return empty
-#'
-# plotConvertRawAndSave <- function(ubb){
-#   tmp.list.rds <- list.files(path = here::here(tmp.dir_res, "data"),
-#                              pattern = "raw",
-#                              full.names = T)
-#
-#   tmp.plts <- lapply(tmp.list.rds, readRDS)
-#   # mycores <- parallel::detectCores()
-#   # tmp.plts <- parallel::mclapply(X = tmp.list.rds,
-#   #                                FUN = readRDS,
-#   #                                mc.cores = mycores)
-#
-#
-#
-#   reportPlotsSaveAsPng(tmp.plts)
-# }
 
-#' Wandelt Liste von ggplot-Objekten zu png um.
-#'  Seperseded due to export_plot and create_allplots2
-#'
-#' @description Wandelt Liste von ggplot-Objekten zu png um.
-#' @details Macht einen vertical align aller ggplot-Objekte
-#'  und export diese als png Grafiken
-#' @param plotlist Plotlist
-#' @return empty
-#'
-# reportPlotsSaveAsPng <- function(plotlist) {
-#
-#
-#   # Align Graphics
-#   plotlist <- cowplot::align_plots(plotlist = plotlist, align="v")
-#
-#
-#   # height_plot <- 148
-#   # if (tmp.var_plot < 4) {
-#   #   height <- 148/8
-#   #   height_plot <- height*tmp.var_plot
-#   # }
-#
-#   for(i in 1:length(plotlist)){
-#     ggplot2::ggsave(paste0('plot',i,'.png'),
-#                     path =  here::here(tmp.dir_res, "plots"),
-#                     plot = plotlist[[i]],
-#                     width = 210, height = height_plot,
-#                     dpi = 300,
-#                     units = "mm"
-#     )
-#     exportedplot <- paste0('plot',i,'.png')
-#
-#     if (interactive() == TRUE) {
-#       cli::cli_alert_info("Export plot: {exportedplot}")
-#     }
-#
-#   }
-#
-# }
 
 
 
@@ -954,29 +684,6 @@ get_snr = function (expired) {
 
     snrlist$snr <- stringr::str_trim(snrlist$snr)
     snrlist <- snrlist |> dplyr::distinct()
-
-    #snrlist$sid <- new_reports$sid
-
-    # unique_snrs <- snrlist |> dplyr::filter(ubb == "FALSE") |>
-    #   dplyr::pull(snr) |>
-    #   unique()
-    #
-    #
-    # if (length(unique_snrs) > 0) {
-    #   overall_reportsRaw <- snrlist |>
-    #     dplyr::filter(ubb == "FALSE") |>
-    #     dplyr::filter(snr %in% unique_snrs) |>
-    #     dplyr::select(-c(audience, results)) |>
-    #     dplyr::distinct()
-    #
-    #   overall_reportsRaw$audience  <- "all"
-    #   overall_reportsRaw$results <- "Alle Befragtengruppen"
-    #
-    #
-    #   snrlist <- snrlist |>
-    #     dplyr::bind_rows(overall_reportsRaw) |>
-    #     dplyr::arrange(snr)
-    # }
 
     cli::cli_inform("Lucky fellow, there are new expired surveys!")
 
@@ -1182,34 +889,7 @@ get_n = function (audience,
   }
 }
 
-#' get_surveytemplate Superseded by get_rprtpckg
-#' @details Get the survey template from LimeSurvey
-#' @param audience Which audience (e,g, sus, elt, leh)
-#'
-# get_surveytemplate <- function (audience) {
-#   tmp.survey <- tmp.sids.df$surveyls_title
-#   tmp.survey0 <- stringr::str_sub(tmp.survey, 12, end = nchar(tmp.survey))
-#   tmp.survey0 <- paste0("tmpl", tmp.survey0)
-#
-#   which.one <- stringr::str_which(tmp.survey0, audience)
-#   tmp.survey <- tmp.survey0[which.one]
-#
-#   if (audience == "all") {
-#     tmp.survey <- NA
-#   }
-#
-#   if (length(tmp.survey) == 0) {
-#     cli::cli_abort("Cannot find survey template.")
-#     #stop("Cannot find survey template.")
-#   }
-#
-#
-#   # if (audience == "none") {
-#   #   tmp.survey <- tmp.survey0
-#   # }
-#
-#   return(tmp.survey)
-# }
+
 
 
 #' get_filtervars
@@ -1238,8 +918,10 @@ get_rprtpckg <-  function (report,
                            allday) {
   #New apprach with templates
   #Get templates list
-  templates <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                  sheet = "templates")
+  # templates <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+  #                                 sheet = "templates")
+
+  templates <- MetaMaster::DB_Table("templates")
 
 
   #Find reportpackage, survey, and report template
@@ -1333,11 +1015,15 @@ export_headers <- function (meta,
 
   #Which headers
   if (ubb == TRUE) {
-    headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                  sheet = "plots_headers_ubb")
+    # headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+    #                               sheet = "plots_headers_ubb")
+
+    headers <- MetaMaster::DB_Table("plots_headers_ubb")
   }else {
-    headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                  sheet = "plots_headers")
+    # headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+    #                               sheet = "plots_headers")
+
+    headers <- MetaMaster::DB_Table("plots_headers")
   }
 
   #Match survey items (plotsnames) with headers
@@ -1357,142 +1043,7 @@ export_headers <- function (meta,
 
 
 
-#' Create PDFs
-#' @description Create a PDF report
-#' @param snr Schoolnumber
-#' @param audience Reporting group
-#' @param name Name
-#' @param ubb UBB TRUE or FALSE
-#' @param n Number of observations
-#' @param results String for reporting group
-#' @param d Duration (UBB only)
-#' @param drop Drop the temporary files
-#'
-#' @return PDF file
 
-create_pdfs <- function (snr,
-                         audience,
-                         name,
-                         ubb,
-                         n,
-                         results,
-                         d = NULL,
-                         drop = TRUE) {
-
-  year <- format(Sys.Date(), "%Y")
-  tmp.dir_res <- get_directory_res(snr = snr, audience = audience)
-  tmp.dir <- get_directory(snr = snr)
-
-  #Create report for UBB or survey
-  if (ubb == TRUE) {
-    #UBB has open comments (tmp.freitext) to include in report
-    results <- tmp.freitext
-
-    rmarkdown::render(
-      input = paste0(tmp.dir_res, "/plots/template.Rmd"),
-      output_file = paste0(tmp.dir, "/", snr, "_results_", audience, ".pdf"),
-      quiet = TRUE,
-      params = list(
-        snr = snr,
-        name = name,
-        t = year,
-        n = n,
-        d = d,
-        fb = results
-      ))
-  }
-
-  if (ubb == FALSE) {
-    rmarkdown::render(
-      input = here::here(tmp.dir_res, "plots/template.Rmd"),
-      output_file = paste0(here::here(tmp.dir), "/", snr, "_results_", audience, ".pdf"),
-      quiet = TRUE,
-      params = list(
-        snr = snr,
-        name = name,
-        t = year,
-        n = n,
-        fb = results
-      ))
-  }
-
-  if (drop == TRUE) {
-    unlink(tmp.dir_res, recursive=TRUE)
-  }
-
-  #Report via CLI if results are available:
-  x <- paste0(here::here(tmp.dir), "/", snr, "_results_", audience, ".pdf")
-
-  if (interactive() == TRUE & file.exists(x) == TRUE) {
-    usethis::ui_done("Exported PDF file for school {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
-    invisible(system(paste0('open ', x)))
-  }
-
-}
-
-
-#' create_html: Superseded
-#' @description Create HTML report
-#' @param snr Schoolnumber
-#' @param audience Reporting group
-#' @param name Name
-#' @param year Year
-#' @param n Number of observations
-#' @param results String for reporting group
-#' @param dauer String for UBB duration
-
-# create_html <- function (snr,
-#                          audience,
-#                          name,
-#                          year,
-#                          ubb,
-#                          n,
-#                          results,
-#                          dauer = NULL) {
-#   #Create report for ubb
-#   if (ubb == TRUE) {
-#
-#     #UBB has open comments (tmp.freitext) to include in report
-#     results <- tmp.freitext
-#
-#     rmarkdown::render(
-#       input = here::here(tmp.dir_res, "plots/template_ubb_html.Rmd"),
-#       output_file = paste0(here::here(tmp.dir_res), "/", snr, "_results_", audience, ".html"),
-#       quiet = TRUE,
-#       params = list(
-#         snr = snr,
-#         name = tmp.name,
-#         t = year,
-#         n = tmp.n,
-#         fb = results
-#       ))
-#   }
-#
-#   #Create report for surveys
-#   if (ubb == FALSE) {
-#     rmarkdown::render(
-#       input = here::here(tmp.dir_res, "plots/template_html.Rmd"),
-#       output_file = paste0(here::here(tmp.dir_res), "/", snr, "_results_", audience, ".html"),
-#       quiet = TRUE,
-#       params = list(
-#         snr = snr,
-#         name = tmp.name,
-#         t = year,
-#         n = tmp.n,
-#         fb = results
-#       ))
-#   }
-#
-#   #Report via CLI if results are available:
-#   x <- paste0(here::here(tmp.dir_res), "/", snr, "_results_", audience, ".html")
-#   if (interactive() == TRUE & file.exists(x) == TRUE) {
-#     usethis::ui_done("Exported HTML file for school {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
-#     invisible(system(paste0('open ', x)))
-#   }
-#
-#
-#
-# }
 
 
 

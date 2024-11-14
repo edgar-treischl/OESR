@@ -36,9 +36,12 @@ export_plot = function (meta,
     unlist()
 
   #Labels
-  tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-                                        sheet = 'sets') |>
-    dplyr::filter(
+  tmp.item.labels <- MetaMaster::DB_Table("sets")
+
+  # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
+  #                                       sheet = 'sets')
+
+  tmp.item.labels <- tmp.item.labels |> dplyr::filter(
       set == tmp.set
     ) |>
     dplyr::arrange(
@@ -50,8 +53,6 @@ export_plot = function (meta,
 
 
   tmp.var_plot <- length(unique(data$vars))
-  #assign("tmp.var_plot", value = tmp.var_plot, envir=globalenv())
-
 
 
   #Manual adjustments for filter questions
