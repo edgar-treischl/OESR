@@ -64,8 +64,11 @@ create_pdfs <- function (snr,
   #Report via CLI if results are available:
   x <- paste0(here::here(tmp.dir), "/", snr, "_results_", audience, ".pdf")
 
-  if (interactive() == TRUE & file.exists(x) == TRUE) {
+  if (file.exists(x) == TRUE) {
     usethis::ui_done("Exported PDF file for school {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
+  }
+
+  if (interactive() == TRUE) {
     invisible(system(paste0('open ', x)))
   }
 

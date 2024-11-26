@@ -5,7 +5,7 @@
 #' @param user Limesurvey user
 #' @param credential Limesurvey credential
 #' @return session id aus Limesurvey
-#'
+#' @export
 
 surveyConnectLs <- function(server,
                             user,
@@ -52,6 +52,7 @@ surveyConnectLs <- function(server,
 #' @param year Year
 #' @param ubb ubb
 #' @return vector mit IDs der Surveys einer Schule
+#' @export
 #'
 surveyGetSurveyIds <- function(snr,
                                year,
@@ -107,6 +108,7 @@ surveyGetSurveyIds <- function(snr,
 #'
 #' @param id id (num)
 #' @return df
+#' @export
 #'
 surveyGetResponseStat <- function(id){
   #del full_responses
@@ -132,7 +134,7 @@ surveyGetResponseStat <- function(id){
 #'  der Befragungen ab
 #' @param ids Vector mit Ids
 #' @return data.frame mit Metadaten der Surveys
-#'
+#' @export
 surveyGetMetaData <- function(ids){
   # alle survey
   tmp.surveys <- call_limer(method = "list_surveys")
@@ -177,6 +179,7 @@ surveyGetMetaData <- function(ids){
 #' @param df Vector mit Ids
 #' @param response Response indicator for Limesurvey
 #' @return data.frame
+#' @export
 #'
 surveyGetData <- function(df,
                           response = "short"){
@@ -257,7 +260,8 @@ surveyGetData <- function(df,
 #' @param iSurveyID Survey-Id
 #' @param sHeadingType full = Variablenlabel (Frage) | code = Variablenname (Code)
 #' @return vector mit Variablennamen bzw. Variablenlabels
-#'
+#' @export
+
 surveyGetVariableRawColumnnames <- function(iSurveyID,
                                             sHeadingType = "full"){
   tmp <- call_limer(
@@ -291,7 +295,7 @@ surveyGetVariableRawColumnnames <- function(iSurveyID,
 #'
 #' @param iSurveyID Survey-Id
 #' @return data.frame mit Variablennamen und -Labels
-#'
+#' @export
 surveyGetVariableRawLabels <- function(iSurveyID){
   tmp <- data.frame(
     vars = surveyGetVariableRawColumnnames(iSurveyID, sHeadingType = "code"),
@@ -320,6 +324,7 @@ surveyGetVariableRawLabels <- function(iSurveyID){
 #'
 #' @param tmp.ques.df data.frame mit Metadaten der Befragungen (surveyGetMetaData())
 #' @return data.frame mit Variablennamen und -Labels mehrerer Surveys
+#' @export
 #'
 surveyGetVariableLabels <- function(tmp.ques.df){
 
@@ -353,6 +358,7 @@ surveyGetVariableLabels <- function(tmp.ques.df){
 #' @param ids Vector mit Survey-Ids aus Limesurvey
 #' @param ubb TRUE or FALSE
 #' @return data.frame mit Daten mehrerer Surveys im Langformat
+#' @export
 #'
 surveyGetDataLongformat <- function(ids,
                                     ubb){
@@ -410,7 +416,7 @@ surveyGetDataLongformat <- function(ids,
 #' @param audience Group indicator
 #' @param ganztag Ganztag indicator
 #' @return meta (vector string)
-#'
+#' @export
 plotGetMetaData <- function(rprtpckg,
                             report,
                             audience,
@@ -455,6 +461,7 @@ plotGetMetaData <- function(rprtpckg,
 #' @param audience Audience of the report
 #'
 #' @return data.frame
+#' @export
 #'
 plotGetData <- function(data,
                         rprtpckg,
@@ -560,7 +567,7 @@ plotGetData <- function(data,
 #' Get school numbers
 #' @description Get school numbers listed in Lime Survey
 #' @param expired all or yesterday
-
+#' @export
 get_snr = function (expired) {
 
   #Connect to LimeSurvey
@@ -773,7 +780,7 @@ get_snr = function (expired) {
 #' Get school name
 #' @description Get school name (string) based on their school number
 #' @param snr School number as a character string
-
+#' @export
 get_sname = function (snr) {
   #get data and filter for snr
   tmp.name <- readr::read_delim(here::here("orig/301_schulnummerlabels.csv"),
@@ -800,9 +807,9 @@ get_sname = function (snr) {
 
 #' Get a list with school numbers
 #' @description Get school name (string) based on their school number
-#' @param drop
-#' @param append
-
+#' @param drop Drop TRUE or FALSE
+#' @param append Append TRUE or FALSE
+#' @export
 get_snrlist <- function(drop = TRUE,
                         append = FALSE) {
   #Get data from expired surveys
@@ -868,7 +875,8 @@ get_snrlist <- function(drop = TRUE,
 #' Get the number of respondents from Limesurvey
 #'
 #' @param audience For which audience
-
+#' @param data Data frame with survey data
+#' @export
 get_n = function (audience,
                   data) {
 
@@ -895,7 +903,7 @@ get_n = function (audience,
 #' get_filtervars
 #' @description Get unique filter variable names
 #' @return String with filter Variables
-
+#' @export
 get_filtervars = function () {
   readxl::read_excel(here::here("orig/filter_plots.xlsx")) |>
     dplyr::select(filter_var)|>
@@ -911,7 +919,7 @@ get_filtervars = function () {
 #' @param school Which school type
 #' @param ubbs UBB TRUE or FALSE
 #' @param allday Ganztag TRUE or FALSE
-
+#' @export
 get_rprtpckg <-  function (report,
                            school,
                            ubbs,
@@ -976,7 +984,7 @@ get_rprtpckg <-  function (report,
 #' Get the list of all surveys from LimeSurvey
 #' @description Get unique filter variable names
 #' @param export Export the list to an Excel file
-
+#' @export
 get_list_surveys <- function(export = FALSE) {
   #Connect
   tmp.session <- surveyConnectLs(user = tmp.user,
@@ -1009,7 +1017,7 @@ get_list_surveys <- function(export = FALSE) {
 #' @param ubb UBB TRUE or FALSE
 #'
 #' @return data frame (Headers)
-
+#' @export
 export_headers <- function (meta,
                             ubb) {
 
@@ -1060,6 +1068,7 @@ export_headers <- function (meta,
 #' @param ganztag Ganztag TRUE or FALSE
 #'
 #' @return List of parameters
+#' @export
 
 get_parameter <- function (snr,
                            audience,

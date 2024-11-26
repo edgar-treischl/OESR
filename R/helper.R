@@ -7,6 +7,7 @@
 #' @description Helpfunction to check if a folder name exists (see create_folder)
 #' @param folder Foldername
 #' @return Foldername or warning
+#' @export
 
 folder_exist <- function(folder) {
   if (file.exists(folder) == FALSE) {
@@ -20,7 +21,7 @@ folder_exist <- function(folder) {
 #' Create folder
 #' @description Create all folder for report
 #' @param folderlist Folderlist
-
+#' @export
 create_folder = function (folderlist = c("res", "doc", "log", "orig", "prog")) {
 
   folder_created <- lapply(folderlist, folder_exist) |> unlist()
@@ -39,7 +40,7 @@ create_folder = function (folderlist = c("res", "doc", "log", "orig", "prog")) {
 #' @param audience audience
 #' @param ubb UBB
 #'
-
+#' @export
 create_directories <- function (snr, audience, ubb) {
 
   #Create path
@@ -109,7 +110,6 @@ create_directories <- function (snr, audience, ubb) {
 
 
 
-
 get_directory <- function(snr) {
   year <- format(Sys.Date(), "%Y")
   tmp.dir <- paste0("res/", snr,"_", year)
@@ -117,6 +117,8 @@ get_directory <- function(snr) {
 
   return(tmp.dir)
 }
+
+
 
 get_directory_res <- function(snr, audience) {
   year <- format(Sys.Date(), "%Y")
@@ -141,7 +143,7 @@ get_directory_res <- function(snr, audience) {
 #' \dontrun{
 #' purrr::pwalk(mylist, run_aslist)
 #' }
-
+#' @export
 create_reports <- function(snr,
                            audience,
                            ubb,
@@ -382,6 +384,7 @@ create_reports <- function(snr,
 #' @description Run all functions to create a report at once
 #' @return Returns Rds, Plots, and PDF report
 #'
+#' @export
 run <- function (...) {
 
   #Only for Test drives in the rmarkdown file

@@ -49,11 +49,12 @@ get_table = function (meta,
   labelset <- unique(data$set)
 
   #get colorscheme for the table
-  tmp.item.labels <- MetaMaster::DB_Table("sets")
+  #tmp.item.labels <- MetaMaster::DB_Table("sets")
+  data(sets)
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
-  tmp.item.labels <- tmp.item.labels |>
+  tmp.item.labels <- sets |>
     dplyr::filter(
       set == labelset
     ) |>
@@ -326,9 +327,7 @@ get_table = function (meta,
     mypath <- paste(paste0(tmp.dir_res, '/plots/', tmp.plotid,'_table.svg'))
     flextable::save_as_image(x = ft, path = mypath)
 
-    if (interactive() == TRUE) {
-      usethis::ui_done("Export table: {usethis::ui_value(tmp.plotid)}")
-    }
+    usethis::ui_done("Export table: {usethis::ui_value(tmp.plotid)}")
 
   }else {
     return(ft)

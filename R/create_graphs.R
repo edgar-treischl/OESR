@@ -5,7 +5,7 @@
 #' @param ubb TRUE or FALSE
 #'
 #' @param export TRUE or FALSE
-
+#' @export
 
 export_plot = function (meta,
                         snr,
@@ -36,12 +36,13 @@ export_plot = function (meta,
     unlist()
 
   #Labels
-  tmp.item.labels <- MetaMaster::DB_Table("sets")
+  data(sets)
+  #tmp.item.labels <- MetaMaster::DB_Table("sets")
 
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
-  tmp.item.labels <- tmp.item.labels |> dplyr::filter(
+  tmp.item.labels <- sets |> dplyr::filter(
       set == tmp.set
     ) |>
     dplyr::arrange(
@@ -197,9 +198,10 @@ export_plot = function (meta,
                     dpi = 300,
                     units = "mm"
     )
-    if (interactive() == TRUE) {
-      usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
-    }
+    usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
+    # if (interactive() == TRUE) {
+    #   usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
+    # }
   }
   return(tmp.p)
 
@@ -211,6 +213,7 @@ export_plot = function (meta,
 #' @param meta Meta data
 #' @param audience audience
 #' @param ubb TRUE or FALSE
+#' @export
 
 create_allplots2 = function (meta,
                              snr,
@@ -238,8 +241,8 @@ create_allplots2 = function (meta,
                    report = report))
 
   #What will be exported
-  #all_files <- list.files(path = here::here(tmp.dir_res, "plots"), pattern = "_plot.pdf")
-  all_files <- here::here()
+  tmp.dir_res <- get_directory_res(snr = snr, audience = audience)
+  all_files <- list.files(path = here::here(tmp.dir_res, "plots"), pattern = "_plot.pdf")
   count_png <- length(all_files)
 
   #Inform what was exported
