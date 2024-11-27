@@ -1,0 +1,64 @@
+---
+title: "![](header_eva_las.png){width=14cm}"
+geometry: left=2cm,right=2cm,top=2cm,bottom=2cm
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+header-includes: \renewcommand{\familydefault}{\sfdefault}
+lang: de-DE
+params:
+  snr: "6009"
+  name: "Test Schule"
+  fb: "Lehrinnen und Lehrer"
+  n: "20"
+  d: "0"
+---
+
+
+```{r, include=FALSE}
+library(OESR)
+Sys.setenv(R_CONFIG_ACTIVE = "default")
+
+knitr::opts_chunk$set(echo = FALSE)
+
+flextable::set_flextable_defaults(fonts_ignore=TRUE)
+
+```
+
+
+
+# Ergebnisse aus der Befragung zur Externen Evaluation
+
+## `r params$name` (`r params$snr`)
+
+
+ - Ergebnisauswertung: `r params$fb`
+ - Gültige Bewertungen: `r params$n`
+ - Evaluationsjahr: `r format(Sys.Date(), "%Y")`
+
+
+![](graphic-title_bfr.png)
+
+\newpage
+
+
+## Hinweise zum besseren Verständnis der Darstellungen
+
+1. Die Überschriften zeigen die Zuordnung der Befragungsergebnisse zu den Kriterien und Anforderungen des bayerischen Qualitätstableaus. Für jede Qualitätsanforderung wird in einem Diagramm und in einer Tabelle dargestellt, inwiefern die Befragten den Aussagen im Fragebogen (Items) zugestimmt haben.
+
+2. Die Balken in den Diagrammen zeigen, wie sich die Antworten der Befragten zu den Items über die verschiedenen Antwortkategorien verteilen. Die Farblegende findet sich in der darunterliegenden Tabelle in der Kopfzeile.
+
+3. In den Balken ist für jede Antwortkategorie der prozentuale Anteil der Personen angegeben, die sich für diese Antwort entschieden haben. In den Tabellen finden Sie zusätzlich die absolute Anzahl der Befragten, die eine bestimmte Antwortkategorie gewählt haben.
+
+4. Neben jedem Balken und in den Zeilen der Tabelle steht eine Kurzform der Fragebogenitems. Aus dem Kürzel in den Klammern geht die Personengruppe hervor, die das jeweilige Item eingeschätzt hat: (elt) für Eltern, (sus) für Schülerinnen und Schüler, (leh) für Lehrkräfte) und (aus) für Ausbildungspartner.
+
+5. Weisen die einer bestimmten Qualitätsanforderung zugehörigen Fragebogenitems durchgängig hohe Zustimmungswerte auf, wird die Anforderung durch die Befragungsergebnisse gestützt.
+
+
+
+
+
+\pagebreak
+

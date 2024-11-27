@@ -5,7 +5,7 @@
 #' @param export Export
 #' @param ubb UBB TRUE or FALSE
 #' @return A flextable
-
+#' @export
 
 get_table = function (meta,
                       snr,
@@ -127,7 +127,7 @@ get_table = function (meta,
         flextable::bg(j=3, bg=colorscheme[2], part ="header") |>
         flextable::color(j=c(1:3), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 3, unit="cm") |>
+        flextable::width(j=1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -149,7 +149,7 @@ get_table = function (meta,
         flextable::bg(j=4, bg=colorscheme[3], part ="header")|>
         flextable::color(j=c(1:4), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 5, unit="cm") |>
+        flextable::width(j=1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -170,7 +170,7 @@ get_table = function (meta,
         flextable::bg(j=5, bg=colorscheme[4], part ="all") |>
         flextable::color(j=c(1:5), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 5, unit="cm") |>
+        flextable::width(j=1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -193,7 +193,7 @@ get_table = function (meta,
         flextable::bg(j=6, bg=colorscheme[5], part ="all") |>
         flextable::color(j=c(1:6), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 6, unit="cm") |>
+        flextable::width(j=1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -218,7 +218,7 @@ get_table = function (meta,
         flextable::bg(j=7, bg=colorscheme[6], part ="all") |>
         flextable::color(j=c(1:7), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 7, unit="cm") |>
+        flextable::width(j=1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -243,7 +243,7 @@ get_table = function (meta,
         flextable::bg(j=8, bg=colorscheme[7], part ="all") |>
         flextable::color(j=c(1:8), color=txtcolorscheme, part="header") |>
         flextable::line_spacing(space = 1.25, part = "body") |>
-        flextable::width(j = 1, 8, unit="cm") |>
+        flextable::width(j= 1, 4, unit="cm") |>
         flextable::width(j=2:(ncol(dftable)-1), 2, unit="cm") |>
         flextable::align(j=2:(ncol(dftable)), align="right", part="body") |>
         flextable::align(j=2:(ncol(dftable)), align="center", part="header") |>
@@ -343,7 +343,8 @@ get_table = function (meta,
 #' @param ubb UBB TRUE or FALSE
 #'
 #' @return A flextable
-
+#' @export
+#'
 export_tables = function (meta,
                           snr,
                           data,

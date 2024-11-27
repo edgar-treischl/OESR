@@ -1,0 +1,56 @@
+---
+title: "![](header_eva_las.png){width=14cm}"
+geometry: left=2cm,right=2cm,top=2cm,bottom=2cm
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \renewcommand{\familydefault}{\sfdefault}
+lang: de-DE
+params:
+  snr: 9999
+  name: "Test Schule"
+  fb: "SUS"
+  n: "1"
+  d: "1"
+---
+
+```{r, include=FALSE}
+library(OESR)
+Sys.setenv(R_CONFIG_ACTIVE = "default")
+
+knitr::opts_chunk$set(echo = FALSE)
+
+flextable::set_flextable_defaults(fonts_ignore=TRUE)
+
+
+```
+
+# Rückmeldung der Ergebnisse aus der Unterrichtsbeobachtung
+
+## `r params$name` (`r params$snr`)
+
+-   Anzahl der Beobachtungen: `r params$n`
+-   Beobachtungszeitpunkt: `r format(Sys.Date(), "%Y")`
+-   Dauer der Beobachtung: `r params$d`
+
+![](graphic_title_ubb.png)
+
+\newpage
+
+## Hinweise zum besseren Verständnis der Darstellungen
+
+Sie finden in diesem Bericht Einschätzungen zu den Anforderungen unter der Überschrift des entsprechenden Qualitätskriteriums aus dem Modul A „Lehren und Lernen“ des bayerischen Qualitätstableaus. Das Diagramm (ein sogenanntes „Verteilungsband“) zeigt, in welchem Grad die Anforderung in den beobachteten Unterrichtsstunden erfüllt ist. Zusätzlich werden die Ergebnisse in einer Tabelle berichtet. Die Verteilungsbänder bestehen aus horizontal gestapelten Segmenten in den Farben Rot, Hellrot, Hellgrau, Hellblau und Blau, die den Punkten auf einer fünfstufigen Einschätzungsskala entsprechen (vgl. Farblegende in der Kopfzeile der Tabelle). Pro Einschätzungsoption wird die absolute Anzahl der Unterrichtseinheiten angezeigt. Ein hoher Anteil an blauen Segmenten ("eher erfüllt"; "voll und ganz erfüllt") verweist darauf, dass eine bestimmte Anforderung in einer hohen Zahl von Unterrichtseinheiten erfüllt ist. 
+
+
+Unter der Überschrift einer jeden Anforderung und der Themen Heterogenität und Digitalisierung werden Beobachtungen auf der Ebene der Indikatoren berichtet. Das geschieht ebenfalls in Form von Verteilungsbändern in den Farben Hellrot, Hellgrau und Blau und in Tabellenform. Die Farblegende befindet sich auch hier in der Kopfzeile der Tabelle. 
+
+
+Sie finden außerdem Informationen zur Variation der Lehr- und Lernmethoden und zur Nutzung digitaler Geräte. 
+
+
+Pro Antwortoption wird immer die absolute Anzahl der Unterrichtseinheiten berichtet.
+
+
+\pagebreak
+

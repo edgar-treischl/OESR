@@ -46,68 +46,67 @@ create_directories <- function (snr, audience, ubb) {
   #Create path
   year <- format(Sys.Date(), "%Y")
 
-  tmp.dir <- paste0("/res/", snr,"_", year)
-  path <- paste0(here::here(), tmp.dir)
+  tmp.dir <- here::here("res", paste0(snr, "_", year))
 
   #Create if not already exists
-  if(!dir.exists(path)){
-    dir.create(path)
+  if(!dir.exists(tmp.dir)){
+    dir.create(tmp.dir)
   }
 
   #Create path for subfolders (e.g. sus)
-  tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
+  #tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
 
-  #Create folder if not exist
-  if(!dir.exists(tmp.dir_res)){
-    dir.create(here::here(tmp.dir_res))
-  }
+  # #Create folder if not exist
+  # if(!dir.exists(tmp.dir_res)){
+  #   dir.create(here::here(tmp.dir_res))
+  # }
 
-  if(!dir.exists(here::here(tmp.dir_res, "plots"))){
-    dir.create(here::here(tmp.dir_res, "plots"))
-  }
+  # if(!dir.exists(here::here(tmp.dir_res, "plots"))){
+  #   dir.create(here::here(tmp.dir_res, "plots"))
+  # }
 
-  if(!dir.exists(here::here(tmp.dir_res, "plots/p/"))){
-    dir.create(here::here(tmp.dir_res, "plots/p/"))
-  }
+  # if(!dir.exists(here::here(tmp.dir_res, "plots/p/"))){
+  #   dir.create(here::here(tmp.dir_res, "plots/p/"))
+  # }
 
   # copy templates into results folder
 
   if (ubb == TRUE) {
-    file.copy(here::here("tmplts/template_ubb.Rmd"), here::here(tmp.dir_res, "plots"))
-    file.copy(here::here("tmplts/graphic_title_ubb.png"), here::here(tmp.dir_res, "plots"))
-    file.rename(from = here::here(tmp.dir_res, "plots/", "template_ubb.Rmd"),
-                to = here::here(tmp.dir_res, "plots/", "template.Rmd"))
+
+    file.copy(
+      from = here::here("tmplts", "graphic_title_ubb.png"),
+      to = paste0(tmp.dir, "/graphic_title_ubb.png")
+    )
+
+    file.copy(
+      from = here::here("tmplts", "header_eva_las.png"),
+      to = paste0(tmp.dir, "/header_eva_las.png")
+    )
   }
 
   if (ubb == FALSE) {
-    file.copy(here::here("tmplts/template_generale.Rmd"), here::here(tmp.dir_res, "plots"))
-    file.copy(here::here("tmplts/graphic-title_bfr.png"), here::here(tmp.dir_res, "plots"))
 
-    file.rename(from = here::here(tmp.dir_res, "plots", "template_generale.Rmd"),
-                to = here::here(tmp.dir_res, "plots", "template.Rmd"))
-  }
+    file.copy(
+      from = here::here("tmplts", "graphic-title_bfr.png"),
+      to = paste0(tmp.dir, "/graphic-title_bfr.png")
+    )
 
-
-  #for header plot
-  file.copy(here::here("tmplts/header_eva_las.png"), here::here(tmp.dir_res,"plots/p"))
-
-  #Check if true
-  if(dir.exists(here::here(tmp.dir_res,"p"))){
-    if(dir.exists(here::here(tmp.dir_res))){
-      usethis::ui_done("All folders set.")
-    }
-  }
-
-  if(file.exists(here::here(tmp.dir_res,"p/header_eva_las.png"))){
-    if(file.exists(here::here(tmp.dir_res,"template_generale.Rmd"))){
-      usethis::ui_done("All templates set.")
-    }
+    file.copy(
+      from = here::here("tmplts", "header_eva_las.png"),
+      to = paste0(tmp.dir, "/header_eva_las.png")
+    )
   }
 
 
 }
 
 
+
+#' Get the directory
+#' @description Bla bla
+#' @param snr The schoolnumber
+#' @return Foldername or warning
+#' @export
 
 
 get_directory <- function(snr) {
@@ -118,7 +117,11 @@ get_directory <- function(snr) {
   return(tmp.dir)
 }
 
-
+#' Get the directory of the results
+#' @description Bla bla
+#' @param snr The schoolnumber
+#' @return Foldername or warning
+#' @export
 
 get_directory_res <- function(snr, audience) {
   year <- format(Sys.Date(), "%Y")
@@ -390,9 +393,7 @@ run <- function (...) {
   #Only for Test drives in the rmarkdown file
   assign("ubb", value = tmp.ubb, envir=globalenv())
 
-  if (interactive() == TRUE) {
-    cli::cli_progress_step("Create data and plots", spinner = TRUE)
-  }
+  cli::cli_progress_step("Create data and plots", spinner = TRUE)
 
   create_allplots2(meta = tmp.meta,
                    audience = tmp.audience,
@@ -635,6 +636,89 @@ test_ExportPlot <- function(testmeta) {
 
 
 #test_ExportPlot(testmeta = tmp.meta[13])
+
+#devtools::document()
+
+#' Get the rmd code for the report
+#' @description Functions runs export_plots function for testing a  single plot
+#' @param x_seq Sequence
+#' @return Returns a plot
+#' @export
+
+get_rmd <- function(x_seq) {
+  # Initialize a list to hold the chunks
+  rmd_chunks <- c()
+
+  # Loop over the sequence and generate the RMarkdown content for each value of `x_seq`
+  for (x in x_seq) {
+    chunk1 <- paste0("```{r, results='asis'}\n", "cat(paste0('## ', header_report$header1[", x, "]))\n", "```")
+    chunk2 <- paste0("```{r}\n", "plot_list[[", x, "]]\n", "```")
+    chunk3 <- paste0("```{r}\n", "table_list[[", x, "]]\n", "```")
+
+    # Add each chunk to the list
+    rmd_chunks <- c(rmd_chunks, chunk1, chunk2, chunk3)
+  }
+
+  # Combine all the chunks into a single string, separated by newlines
+  rmd_content <- paste(rmd_chunks, collapse = "\n\n")
+
+  # Return the full RMarkdown content as a single string
+  return(rmd_content)
+}
+
+
+
+#get_rmd(1:2)
+
+#' Generate the Rmd file for the report
+#' @description Functions runs export_plots function for testing a  single plot
+#' @param x_seq Sequence
+#' @param file_name Filename
+#' @return Returns a plot
+#' @export
+
+
+generate_rmd <- function(x_seq,
+                         ubb,
+                         file_name = "generated_document.Rmd") {
+  # Read the template file content for the YAML header and any other template content
+  #yaml_header <- "---\ntitle: \"Untitled\"\noutput: html_document\ndate: \"2024-11-26\"\n---\n"
+
+  if (ubb) {
+    yaml_header <- readLines(here::here("tmplts", "template_ubb_min.Rmd"))
+  }else {
+    yaml_header <- readLines(here::here("tmplts", "template_min.Rmd"))
+  }
+
+
+
+  # Combine the YAML header content into a single string with appropriate newlines
+  yaml_header <- paste(yaml_header, collapse = "\n")
+
+  # Get the RMarkdown content from the get_rmd function
+  rmd_content <- get_rmd(x_seq)
+
+  # Combine the YAML header with the RMarkdown content
+  full_rmd <- paste(yaml_header, rmd_content, sep = "\n\n")
+
+  # Write the full RMarkdown content to the specified file
+  writeLines(full_rmd, file_name)
+
+  # Optionally, print a message to confirm the file is created
+  #message("RMarkdown content has been written to ", file_name)
+}
+
+
+
+#generate_rmd(1:44, ubb = TRUE)
+
+
+
+
+
+
+
+
 
 
 
