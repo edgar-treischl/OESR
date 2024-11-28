@@ -13,27 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Um Reports zu erstellen, enthält dieses Projekt vier verschiedene Quelldateien. 
 
-- Die Datei `limer.R` enthält Funktionen zum Abrufen von Daten über die Limer API. - Die Datei `source.R` enthält Funktionen zur Erstellung von Berichten. 
-- Die Datei `helper.R` enthält Hilfsfunktionen (z.B. zum Erstellen von Verzeichnissen). 
-- Die Datei `checks.R` enthält weitere Funktionen zur Überprüfung der Gültigkeit der Metadaten.
-
-```{r}
-source(here::here("prog/helper.R"), encoding = "UTF-8")
-source(here::here("prog/limer.R"), encoding = "UTF-8")
-source(here::here("prog/source.R"), encoding = "UTF-8")
-source(here::here("prog/checks.R"), encoding = "UTF-8")
-```
-
-Um auf die Daten von Limesurvey zugreifen zu können, müssen die Zugangsdaten, der Server und den Benutzernamen für Limesurvey festgelegt werden. Diese sensiblen Informationen sind fest kodiert, da HWS dies so möchte. Wie der Output zeigt, werden noch weitere globale Parameter gesetzt. 
-
-```{r}
-#Provide credential, server, and user name for Limesurvey
-set_parameters()
-```
-
-Ferner benötigen wir eine Liste mit Angaben über die Schule (Schulnummer, Schulart, etc.), um einen Bericht zu erstellen. Die Funktion `get_snr()` gibt einen Datensatz mit aktiv und abgelaufen Umfragen aus Limesurvey zurück. Für Testzwecke können die folgenden Parameter auch manuell gesetzt werden.
+Ferner benÃ¶tigen wir eine Liste mit Angaben ?ber die Schule (Schulnummer, Schulart, etc.), um einen Bericht zu erstellen. Die Funktion `get_snr()` gibt einen Datensatz mit aktiv und abgelaufen Umfragen aus Limesurvey zurÃ¼ck. FÃ¼r Testzwecke kÃ¶nnen die folgenden Parameter auch manuell gesetzt werden.
 
 
 ```{r}
@@ -57,9 +38,9 @@ tmp.ganztag <- FALSE
 ```
 
 
-Nachdem alle Parameter für den Bericht bekannt sind, kann man über die Funktion `get_parameter()` die Parameter der Metadaten sowie die entsprechenden Daten von Limesurvey abrufen. Letztere ist eine Wrapper-Funktion, mit mehreren Schritten. 
+Nachdem alle Parameter f?r den Bericht bekannt sind, kann man ?ber die Funktion `get_parameter()` die Parameter der Metadaten sowie die entsprechenden Daten von Limesurvey abrufen. Letztere ist eine Wrapper-Funktion, mit mehreren Schritten. 
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 get_parameter(user = tmp.user,
               credential = tmp.credential,
               server = tmp.server,
@@ -74,9 +55,9 @@ get_parameter(user = tmp.user,
 
 
 
-Zuerst werden die Ordner und Verzeichnisse erstellt (via `create_directories()`), sowie Vorlagen kopiert, um den Bericht zu erstellen (siehe den Ordner `res`). Danach wird eine Verbindung zum Limesurvey-Server hergestellt (über `surveyConnectLs()`) und die Rohdaten (`tmp.data`) werden über `surveyGetDataLongformat()` abgerufen. Ebenso werden die Metadaten geladen. 
+Zuerst werden die Ordner und Verzeichnisse erstellt (via `create_directories()`), sowie Vorlagen kopiert, um den Bericht zu erstellen (siehe den Ordner `res`). Danach wird eine Verbindung zum Limesurvey-Server hergestellt (?ber `surveyConnectLs()`) und die Rohdaten (`tmp.data`) werden ?ber `surveyGetDataLongformat()` abgerufen. Ebenso werden die Metadaten geladen. 
 
-Um einzelne Plots zu erstellen, enthalt das globale Object `tmp.meta` das Report Template und den Namen des Plots. Die Funktion informiert darüber, ob der Download geklappt hat und gibt die Rohdaten zurück.
+Um einzelne Plots zu erstellen, enthalt das globale Object `tmp.meta` das Report Template und den Namen des Plots. Die Funktion informiert dar?ber, ob der Download geklappt hat und gibt die Rohdaten zur?ck.
 
 ```{r, eval=FALSE}
 #Meta data
@@ -102,7 +83,7 @@ export_plot(meta = tmp.meta[1],
 
 
 
-Die Funktion `create_allplots2()` ist eine Wrapperfunktion, welche für alle in den Metadaten gelisteten Plots eine Grafik erstellt und diese direkt als PDF exportiert.
+Die Funktion `create_allplots2()` ist eine Wrapperfunktion, welche f?r alle in den Metadaten gelisteten Plots eine Grafik erstellt und diese direkt als PDF exportiert.
 
 ```{r, eval=FALSE}
 #create_allplots (with data export); create_allplots2 (without data export)
@@ -114,7 +95,7 @@ create_allplots2(meta = tmp.meta,
 
 
 
-In Analogie dazu kreiiert und exportiert die `export_tables()` Funktion datzgehörigen Tabellen für den Report.  
+In Analogie dazu kreiiert und exportiert die `export_tables()` Funktion datzgeh?rigen Tabellen f?r den Report.  
 
 ```{r, eval=FALSE}
 #Export tables
@@ -124,7 +105,7 @@ export_tables(meta = tmp.meta,
 ```
 
 
-Abschließend rendert die Funktion `create_pdfs()` das PDF: Basierend auf den Templates werden alle zuvor exportieren Grafiken und Tabellen im PDF berücksichtigt.
+Abschlie?end rendert die Funktion `create_pdfs()` das PDF: Basierend auf den Templates werden alle zuvor exportieren Grafiken und Tabellen im PDF ber?cksichtigt.
 
 ```{r, eval=FALSE}
 #Create PDFs
@@ -138,80 +119,15 @@ create_pdfs(snr = tmp.snr,
             results = tmp.results)
 ```
 
-Neben den bereits bekannten Parametern, wird hier auch der Name der Schule (`tmp.name`), die Anzahl der Teilnehmer (`tmp.n`), die Dauer der Umfrage (`tmp.dauer`) sowie ein Textstring `results` übergeben, letzteres bezeichnet die Ergebnisse für unterschiedliche Befragungsgruppen an. Diese Parameter werden von rmarkdown verwendet, um den Report zu erstellen (siehe `get_snr`). 
+Neben den bereits bekannten Parametern, wird hier auch der Name der Schule (`tmp.name`), die Anzahl der Teilnehmer (`tmp.n`), die Dauer der Umfrage (`tmp.dauer`) sowie ein Textstring `results` ?bergeben, letzteres bezeichnet die Ergebnisse f?r unterschiedliche Befragungsgruppen an. Diese Parameter werden von rmarkdown verwendet, um den Report zu erstellen (siehe `get_snr`). 
 
 
 
-## Validitätschecks
-
-Der Source Code beinhalet auch die Funktion `catch_errors()`. Die Funktion zieht sich die Daten von Lime Survey und kreiert die Grafiken und Tabellen. Ziel dabei ist es aber mögliche Fehler zu identifizieren.
-
-```{r, eval=TRUE, warning=TRUE, error=TRUE}
-#catch_errors example code
-catch_error(snr = "0001", 
-            audience = "elt", 
-            ubb = FALSE, 
-            results = "Eltern", 
-            stype = "gy",
-            ganztag = FALSE)
-
-```
-Mit der Wrapper Funktion `catch_errors()` können mehrere Umfragen hintereinander getestet werden. Die Funktion nutzt die Funktion `catch_error()` und speichert alle Warnungen und Fehler in einer Logdatei. Die folgende Code zeigt ein Beispielvorgehen.
 
 
-```{r, eval=FALSE}
-snrlist <- readxl::read_excel(here::here("orig/snr_tests.xlsx"))
 
 
-mylist <- list(snr = snrlist$snr,
-               ganztag = snrlist$ganztag,
-               audience = snrlist$audience,
-               ubb = snrlist$ubb,
-               stype = snrlist$stype,
-               results = snrlist$results)
-
-catch_errors(mylist)
-```
 
 
-Prinzipiell werden alle Warnung und Fehler bei solchen Testruns identifiziert. Im Zuge der Codeentwicklung sind noch zwei weitere Validitätschecks entstanden, die noch im Source Code enthalten sind, jedoch keinen umfangreichen Tests ausgesetzt wurden. 
 
 
-Die Funktion `check_templates()` stellt eine Verbindung zu Limesurvey her, sammelt alle verwendeten Survey Templates und gibt Fälle zurück, die nicht mit den Metadaten abgeglichen werden können.
-
-```{r, eval=F}
-check_templates(user = tmp.user,
-                server = tmp.server,
-                credential = tmp.credential)
-
-# The following templates can't be matched with the meta data.
-# [1] "tmpl_tmpl_bfr_zspf_fz_leh_00_2022_p2"
-# [2] "tmpl_tmpl_bfr_zspf_fz_sus_05_2022_p2"
-# [3] "tmpl_bfr_zspf_fz_elt_00_2022_p1 "    
-# [4] "tmpl_tmpl_bfr_zspf_fz_elt_01_2022_p2"
-```
-
-Die Funktion `check_plot()` sammelt Daten von Limesurvey und gibt Variablennamen zurück, die nicht in den Metadaten auftauchen.
-
-
-```{r, eval=FALSE}
-check_plot(user = tmp.user,
-           credential = tmp.credential,
-           server = tmp.server,
-           snr = tmp.snr, 
-           year = tmp.year,
-           ubb = tmp.ubb,
-           audience = tmp.audience,
-           stype = tmp.stype,
-           ganztag = tmp.ganztag)
-
-# Joining with `by = join_by(sid)`
-# Joining with `by = join_by(sid)`
-# Joining with `by = join_by(sid)`
-# Joining with `by = join_by(sid, vars)`
-# $snr
-# [1] "0001"
-# 
-# $missing_plots
-# [1] "gy"
-```
