@@ -1,0 +1,26 @@
+─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.4.2 (2024-10-31)
+ os       macOS Sequoia 15.1.1
+ system   aarch64, darwin20
+ ui       X11
+ language (EN)
+ collate  C
+ ctype    en_US.UTF-8
+ tz       Europe/Berlin
+ date     2024-11-28
+ pandoc   3.3 @ /opt/homebrew/bin/pandoc
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ package     * version    date (UTC) lib source
+ cli           3.6.3      2024-06-21 [2] CRAN (R 4.4.0)
+ httr          1.4.7      2023-08-15 [2] CRAN (R 4.4.0)
+ OESR          0.0.0.9000 2024-11-28 [1] local
+ R6            2.5.1      2021-08-19 [2] CRAN (R 4.4.0)
+ rstudioapi    0.17.1     2024-10-22 [2] CRAN (R 4.4.1)
+ sessioninfo   1.2.2      2021-12-06 [2] CRAN (R 4.4.0)
+
+ [1] /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/00LOCK-OESR/00new
+ [2] /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library
+
+──────────────────────────────────────────────────────────────────────────────

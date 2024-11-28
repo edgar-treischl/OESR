@@ -1,15 +1,11 @@
-# #01 Load source code############################################################
-# source(here::here("prog/helper.R"), encoding = "UTF-8")
-# source(here::here("prog/limer.R"), encoding = "UTF-8")
-# source(here::here("prog/source.R"), encoding = "UTF-8")
-# source(here::here("prog/checks.R"), encoding = "UTF-8")
+# library(OESR)
 #
-# #Provide credential, server, and user name for Limesurvey via set_parameters
-# set_parameters()
+# Sys.setenv(R_CONFIG_ACTIVE = "default")
+#
 #
 # #Get expired surveys
-# snrlist <- get_snrlist(append = TRUE)
-# snrlist
+# snrlist <- get_snrlist(append = FALSE)
+#
 #
 # #Check what comes back
 # check <- is.data.frame(snrlist)
@@ -35,54 +31,43 @@
 #                  results = snrlist$results)
 #
 #   #Create reports based on snr list
-#   #purrr::pwalk(mylist, purrr::safely(create_reports))
-#   results <- purrr::pmap(mylist, purrr::safely(create_reports))
-#
-#   # # Check for failed reports
-#   # failed_reports <- purrr::map_lgl(results, function(res) {
-#   #   # Each res is a list with 'result' and 'error' elements
-#   #   # We check if the 'error' element is not NULL
-#   #   !is.null(res$error)
-#   # })
-#
-#   #snrlist$failed_reports <- failed_reports
+#   #results <- purrr::pmap(mylist, purrr::safely(create_reports))
+#   results <- purrr::pmap(mylist, purrr::safely(runParallel))
 #
 #
-#   #errorlist <- snrlist |> dplyr::filter(failed_reports == TRUE)
+#   # Check for failed reports
+#   failed_reports <- purrr::map_lgl(results, function(res) {
+#     !is.null(res$error)
+#   })
 #
+#   # Add failed_reports to snrlist
+#   snrlist$failed_reports <- failed_reports
 #
-#   # error_messages <- purrr::map_chr(results, function(res) {
-#   #   # If an error exists, return the error message, otherwise return NA
-#   #   if (!is.null(res$error)) {
-#   #     return(res$error$message)
-#   #   } else {
-#   #     return(NA)  # No error, so return NA
-#   #   }
-#   # })
+#   # Create a list of failed reports
+#   errorlist <- snrlist |>
+#     dplyr::filter(failed_reports == TRUE) |>
+#     dplyr::select(-check, -failed_reports)
 #
+#   # Send an email if there are failed reports
+#   if (nrow(errorlist) > 0) {
 #
-#   #errorlist$error <- error_messages[!is.na(error_messages)]
+#     #The mail template
+#     email <- blastula::render_email(here::here("tmplts", "template_mail.Rmd"))
 #
-#   # if (nrow(errorlist) > 0) {
-#   #   #export errorlist as csv
-#   #   write.csv(errorlist, file = here::here("res", "errors.csv"), row.names = FALSE)
-#   #
-#   #   email <- blastula::render_email(here::here("tmplts", "template_mail.Rmd"))
-#   #
-#   #   email |>
-#   #     blastula::smtp_send(
-#   #       to = "edgar.treischl@isb.bayern.de",
-#   #       from = "oes@isb.bayern.de",
-#   #       subject = "OES Report Runtime Error",
-#   #       credentials = blastula::creds_file(file = "my_mail_creds")
-#   #     )
-#   #
-#   # }
+#     #Send to:
+#     email |>
+#       blastula::smtp_send(
+#         to = "edgar.treischl@isb.bayern.de",
+#         from = "oes@isb.bayern.de",
+#         subject = "OES Report Runtime Error",
+#         credentials = blastula::creds_file(file = "my_mail_creds")
+#       )
+#
+#   }
 #
 #
 # }else {
 #   print("All done.")
 # }
-#
 #
 #

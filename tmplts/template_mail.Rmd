@@ -4,7 +4,7 @@ output: blastula::blastula_email
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
+knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       message = FALSE)
 ```
@@ -22,24 +22,65 @@ knitr::opts_chunk$set(echo = TRUE,
 dies ist eine automatisierte Mail mit Fehlermeldungen aus dem OES Reporting Systems. Für folgende LimeSurvey Umfragen konnte kein PDF generiert werden.
 
 
-```{r, echo=FALSE}
-errors <- readr::read_csv(here::here("res", "errors.csv"))
-errors
+### Check these bugger(s):
 
+```{r}
+#Check these bugger(s):
+errorlist
 ```
 
-Die Fehlermeldungen im Einzelnen lautet wie folgt:
+
+### Code to debug:
 
 
 ```{r, echo=FALSE}
-#now print for each row of test the snr and the error message
-for (i in 1:nrow(errors)) {
-  cat("SNR: ", errors$snr[i], "\n")
-  cat("Error: ", errors$error[i], "\n")
-  cat("\n")
+# Function to generate R code for debugging
+create_TestCode <- function(input_tibble) {
+  # Create a list to store the generated code for each row
+  r_code_list <- lapply(1:nrow(input_tibble), function(i) {
+    # Extract values from the i-th row
+    tmp.snr <- input_tibble$snr[i]
+    tmp.ubb <- input_tibble$ubb[i]
+    tmp.ganztag <- input_tibble$ganztag[i]
+    tmp.audience <- input_tibble$audience[i]
+    tmp.stype <- input_tibble$stype[i]
+    tmp.results <- input_tibble$results[i]
+    
+    # Generate R code for the current row
+    r_code <- paste0(
+      "tmp.snr <- \"", tmp.snr, "\"\n",
+      "tmp.ubb <- ", tmp.ubb, "\n",
+      "tmp.ganztag <- ", tmp.ganztag, "\n",
+      "tmp.audience <- \"", tmp.audience, "\"\n",
+      "tmp.stype <- \"", tmp.stype, "\"\n",
+      "tmp.results <- \"", tmp.results, "\"\n"
+    )
+    
+    return(r_code)
+  })
+  
+  # Return a character vector of R code
+  return(r_code_list)
 }
 
+# # Example usage:
+# # Create a tibble with multiple rows
+# my_tibble <- tibble::tibble(
+#   snr = c("0001", "0002"),
+#   ubb = c(FALSE, TRUE),
+#   ganztag = c(FALSE, TRUE),
+#   audience = c("elt", "stud"),
+#   stype = c("gy", "sec"),
+#   results = c("Eltern", "Students")
+# )
+
+# Generate the R code for all rows in the tibble
+generated_codes <- create_TestCode(errorlist) |> unlist()
+cat(generated_codes)
+
 ```
+
+
 
 
 

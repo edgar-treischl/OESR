@@ -1,113 +1,8 @@
-# library(usethis)
-# library(here)
-# library(cli)
-# library(log4r)
-
-#' Check if folder exists
-#' @description Helpfunction to check if a folder name exists (see create_folder)
-#' @param folder Foldername
-#' @return Foldername or warning
-#' @export
-
-folder_exist <- function(folder) {
-  if (file.exists(folder) == FALSE) {
-    return(folder)
-  } else {
-    usethis::ui_info("Folder {usethis::ui_value(folder)} already exists.")
-  }
-}
-
-
-#' Create folder
-#' @description Create all folder for report
-#' @param folderlist Folderlist
-#' @export
-create_folder = function (folderlist = c("res", "doc", "log", "orig", "prog")) {
-
-  folder_created <- lapply(folderlist, folder_exist) |> unlist()
-
-  if (is.null(folder_created) == FALSE) {
-    invisible(lapply(folder_created, dir.create, "."))
-    for (x in folder_created) {
-      usethis::ui_done("Folder {usethis::ui_value(x)} created.")
-    }
-  }
-}
-
-#' Create directories
-#' @description Create folder directories for the report
-#' @param snr schoolnumber
-#' @param audience audience
-#' @param ubb UBB
-#'
-#' @export
-create_directories <- function (snr, audience, ubb) {
-
-  #Create path
-  year <- format(Sys.Date(), "%Y")
-
-  tmp.dir <- here::here("res", paste0(snr, "_", year))
-
-  #Create if not already exists
-  if(!dir.exists(tmp.dir)){
-    dir.create(tmp.dir)
-  }
-
-  #Create path for subfolders (e.g. sus)
-  #tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
-
-  # #Create folder if not exist
-  # if(!dir.exists(tmp.dir_res)){
-  #   dir.create(here::here(tmp.dir_res))
-  # }
-
-  # if(!dir.exists(here::here(tmp.dir_res, "plots"))){
-  #   dir.create(here::here(tmp.dir_res, "plots"))
-  # }
-
-  # if(!dir.exists(here::here(tmp.dir_res, "plots/p/"))){
-  #   dir.create(here::here(tmp.dir_res, "plots/p/"))
-  # }
-
-  # copy templates into results folder
-
-  if (ubb == TRUE) {
-
-    file.copy(
-      from = here::here("tmplts", "graphic_title_ubb.png"),
-      to = paste0(tmp.dir, "/graphic_title_ubb.png")
-    )
-
-    file.copy(
-      from = here::here("tmplts", "header_eva_las.png"),
-      to = paste0(tmp.dir, "/header_eva_las.png")
-    )
-  }
-
-  if (ubb == FALSE) {
-
-    file.copy(
-      from = here::here("tmplts", "graphic-title_bfr.png"),
-      to = paste0(tmp.dir, "/graphic-title_bfr.png")
-    )
-
-    file.copy(
-      from = here::here("tmplts", "header_eva_las.png"),
-      to = paste0(tmp.dir, "/header_eva_las.png")
-    )
-  }
-
-
-}
-
-
-
 #' Get the directory
 #' @description Bla bla
 #' @param snr The schoolnumber
 #' @return Foldername or warning
 #' @export
-
 
 get_directory <- function(snr) {
   year <- format(Sys.Date(), "%Y")
@@ -130,6 +25,157 @@ get_directory_res <- function(snr, audience) {
 
   return(tmp.dir_res)
 }
+
+
+#' Get school name
+#' @description Get school name (string) based on their school number
+#' @param snr School number as a character string
+#' @export
+get_sname = function (snr) {
+
+  data(schools_names)
+  tmp.name <- schools_names |> dplyr::filter(SNR == snr)
+  tmp.name <- tmp.name$SNAME
+
+  #Check if more than one name is found
+  if (length(tmp.name) > 1) {
+    cli::cli_abort("Error in get_sname(): More than one school name found.")
+  }
+
+  # if no name is found?
+  if (length(tmp.name) == 0) {
+    tmp.name <- "School name not available."
+  }
+
+  return(tmp.name)
+}
+
+#' Get the rmd code for the report
+#' @description Functions runs export_plots function for testing a  single plot
+#' @param x_seq Sequence
+#' @return Returns a plot
+#' @export
+
+get_rmd <- function(x_seq) {
+  # Initialize a list to hold the chunks
+  rmd_chunks <- c()
+
+  # Loop over the sequence and generate the RMarkdown content for each value of `x_seq`
+  for (x in x_seq) {
+    chunk1 <- paste0("```{r, results='asis'}\n", "cat(paste0('## ', header_report$header1[", x, "]))\n", "```")
+    chunk2 <- paste0("```{r}\n", "plot_list[[", x, "]]\n", "```")
+    chunk3 <- paste0("```{r}\n", "table_list[[", x, "]]\n", "```")
+
+    # Add each chunk to the list
+    rmd_chunks <- c(rmd_chunks, chunk1, chunk2, chunk3)
+  }
+
+  # Combine all the chunks into a single string, separated by newlines
+  rmd_content <- paste(rmd_chunks, collapse = "\n\n")
+
+  # Return the full RMarkdown content as a single string
+  return(rmd_content)
+}
+
+
+
+#' Generate the Rmd file for the report
+#' @description Functions runs export_plots function for testing a  single plot
+#' @param x_seq Sequence
+#' @param file_name Filename
+#' @return Returns a plot
+#' @export
+
+
+generate_rmd <- function(x_seq,
+                         ubb,
+                         export = TRUE,
+                         file_name = "generated_document.Rmd") {
+  # Read the template file content for the YAML header and any other template content
+  #yaml_header <- "---\ntitle: \"Untitled\"\noutput: html_document\ndate: \"2024-11-26\"\n---\n"
+
+  if (ubb) {
+    yaml_header <- readLines(here::here("tmplts", "template_ubb_min.Rmd"))
+  }else {
+    yaml_header <- readLines(here::here("tmplts", "template_min.Rmd"))
+  }
+
+
+
+  # Combine the YAML header content into a single string with appropriate newlines
+  yaml_header <- paste(yaml_header, collapse = "\n")
+
+  # Get the RMarkdown content from the get_rmd function
+  rmd_content <- get_rmd(x_seq)
+
+  # Combine the YAML header with the RMarkdown content
+  full_rmd <- paste(yaml_header, rmd_content, sep = "\n\n")
+
+  # Write the full RMarkdown content to the specified file
+  if (export == TRUE) {
+    writeLines(full_rmd, file_name)
+  }else {
+    return(full_rmd)
+  }
+
+
+  # Optionally, print a message to confirm the file is created
+  #message("RMarkdown content has been written to ", file_name)
+}
+
+
+
+#generate_rmd(1:44, ubb = TRUE)
+
+#' Create directories
+#' @description Create folder directories for the report
+#' @param snr schoolnumber
+#' @param audience audience
+#' @param ubb UBB
+#'
+#' @export
+create_directories <- function (snr, audience, ubb) {
+
+  #Create path
+  year <- format(Sys.Date(), "%Y")
+
+  tmp.dir <- here::here("res", paste0(snr, "_", year))
+
+  #Create if not already exists
+  if(!dir.exists(tmp.dir)){
+    dir.create(tmp.dir)
+  }
+
+
+  if (ubb == TRUE) {
+
+    file.copy(
+      from = here::here("tmplts", "graphic_title_ubb.png"),
+      to = paste0(tmp.dir, "/graphic_title_ubb.png")
+    )
+
+    file.copy(
+      from = here::here("tmplts", "header_eva_las.png"),
+      to = paste0(tmp.dir, "/header_eva_las.png")
+    )
+  }else {
+    file.copy(
+      from = here::here("tmplts", "graphic-title_bfr.png"),
+      to = paste0(tmp.dir, "/graphic-title_bfr.png")
+    )
+
+    file.copy(
+      from = here::here("tmplts", "header_eva_las.png"),
+      to = paste0(tmp.dir, "/header_eva_las.png")
+    )
+  }
+
+
+}
+
+
+
+
 
 
 
@@ -161,18 +207,53 @@ create_reports <- function(snr,
 
   #Create directories under res
   year <- format(Sys.Date(), "%Y")
-  create_directories(snr = snr,
-                     audience = audience,
-                     ubb = ubb)
+  # create_directories(snr = snr,
+  #                    audience = audience,
+  #                    ubb = ubb)
 
+  tmp.dir <- paste0("/res/", snr,"_", year)
+  path <- paste0(here::here(), tmp.dir)
 
-  #Create log file
-  if (tmp.log == TRUE) {
-    create_log(snr,
-               year,
-               audience,
-               logger = tmp.log)
+  #Create if not already exists
+  if(!dir.exists(path)){
+    dir.create(path)
   }
+
+  #Create path for subfolders (e.g. sus)
+  tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
+
+  #Create folder if not exist
+  if(!dir.exists(tmp.dir_res)){
+    dir.create(here::here(tmp.dir_res))
+  }
+
+  if(!dir.exists(here::here(tmp.dir_res, "plots"))){
+    dir.create(here::here(tmp.dir_res, "plots"))
+  }
+
+  if(!dir.exists(here::here(tmp.dir_res, "plots/p/"))){
+    dir.create(here::here(tmp.dir_res, "plots/p/"))
+  }
+
+
+  if (ubb == TRUE) {
+    file.copy(here::here("tmplts/template_ubb.Rmd"), here::here(tmp.dir_res, "plots"))
+    file.copy(here::here("tmplts/graphic_title_ubb.png"), here::here(tmp.dir_res, "plots"))
+    file.rename(from = here::here(tmp.dir_res, "plots/", "template_ubb.Rmd"),
+                to = here::here(tmp.dir_res, "plots/", "template.Rmd"))
+  }
+
+  if (ubb == FALSE) {
+    file.copy(here::here("tmplts/template_generale.Rmd"), here::here(tmp.dir_res, "plots"))
+    file.copy(here::here("tmplts/graphic-title_bfr.png"), here::here(tmp.dir_res, "plots"))
+
+    file.rename(from = here::here(tmp.dir_res, "plots", "template_generale.Rmd"),
+                to = here::here(tmp.dir_res, "plots", "template.Rmd"))
+  }
+
+
+  #for header plot
+  file.copy(here::here("tmplts/header_eva_las.png"), here::here(tmp.dir_res,"plots/p"))
 
   #Get name of school
   tmp.name <- get_sname(snr)
@@ -182,17 +263,16 @@ create_reports <- function(snr,
 
 
   #Results will be here:
-  tmp.dir <- paste0("res/", snr,"_", year)
+  #tmp.dir <- paste0("res/", snr,"_", year)
   #assign("tmp.dir", value = tmp.dir, envir=globalenv())
 
   #For audience here:
-  tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
+  #tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
   #assign("tmp.dir_res", value = tmp.dir_res, envir=globalenv())
 
   #Adjust directory for UBB
   if (ubb == TRUE) {
     tmp.dir_res <- paste0("res/", snr,"_", year, "/", "ubb")
-    #assign("tmp.dir_res", value = tmp.dir_res, envir=globalenv())
   }
 
 
@@ -308,11 +388,6 @@ create_reports <- function(snr,
 
 
   cli::cli_progress_step("Create data and plots:", spinner = TRUE)
-  #create_allplots(meta = tmp.meta,
-                  #audience,
-                  #ubb)
-  #tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience)
-
   create_allplots2(meta = tmp.meta,
                    audience = audience,
                    data = tmp.data,
@@ -327,8 +402,6 @@ create_reports <- function(snr,
                 report = tmp.report,
                 audience = audience,
                 ubb = ubb)
-
-  cli::cli_progress_update();
 
   #Render results
   cli::cli_progress_update();
@@ -340,169 +413,259 @@ create_reports <- function(snr,
               ubb = ubb,
               n = tmp.n,
               d = tmp.dauer,
-              results = results)
-
-  cli::cli_progress_update()
-}
-
-#' #' Superseded Create log
-#' #' @description Create log file for a report.
-#' #' @param snr Schoolnumber
-#' #' @param year Year
-#' #' @param audience Reporting group
-#' #' @param logger tmp.logile
-#'
-#'
-#'
-#' create_log <- function (snr,
-#'                         year,
-#'                         audience,
-#'                         logger) {
-#'
-#'   if (logger == TRUE) {
-#'     tmp.dir_res <- paste0("res/", snr,"_", year, "/", audience, "/")
-#'
-#'     #Del old logs if available
-#'     logfiles <- list.files(path = here::here(tmp.dir_res),
-#'                            pattern = ".log", full.names = T)
-#'
-#'     if (length(logfiles) > 0) {
-#'       unlink(logfiles)
-#'     }
-#'
-#'
-#'     #tmp.log.name <- paste0(lubridate::today(), "_", snr, "_")
-#'     log_file <- tempfile(pattern = "log_",
-#'                          tmpdir = here::here(tmp.dir_res), fileext = ".log")
-#'     log <- log4r::logger(appenders = log4r::file_appender(log_file))
-#'     assign("log", value = log, envir=globalenv())
-#'     #log4r::info(log, glue::glue("Log for school: {snr}"))
-#'   }
-#' }
-
-
-
-
-#' Run
-#' @description Run all functions to create a report at once
-#' @return Returns Rds, Plots, and PDF report
-#'
-#' @export
-run <- function (...) {
-
-  #Only for Test drives in the rmarkdown file
-  assign("ubb", value = tmp.ubb, envir=globalenv())
-
-  cli::cli_progress_step("Create data and plots", spinner = TRUE)
-
-  create_allplots2(meta = tmp.meta,
-                   audience = tmp.audience,
-                   data = tmp.data,
-                   report = tmp.report,
-                   snr = tmp.snr,
-                   ubb = tmp.ubb)
-
-
-
-  if (interactive() == TRUE) {
-    cli::cli_progress_update();
-    cli::cli_progress_step("Export report infos", spinner = TRUE)
-  }
-
-  export_tables(meta = tmp.meta,
-                data = tmp.data,
-                snr = tmp.snr,
-                report = tmp.report,
-                audience = tmp.audience,
-                ubb = tmp.ubb)
-
-
-  #Render results
-  if (interactive() == TRUE) {
-    cli::cli_progress_update();
-    cli::cli_progress_step("Render results", spinner = TRUE)
-  }
-
-  create_pdfs(snr = tmp.snr,
-              audience = tmp.audience,
-              name = tmp.name,
-              ubb = tmp.ubb,
-              n = tmp.n,
-              d = tmp.dauer,
-              results = tmp.results,
+              results = results,
               drop = FALSE)
 }
 
 
-#' Run as List
-#' @description Run all functions to create several reports at once
+
+
+#' Check whether a survey has valid response
+#' @description Check if a survey has valid response
+#' @param snr School number
+#' @param audience Audience
+#' @param ubb UBB TRUE or FALSE
+
+check_response <- function (snr,
+                            audience,
+                            ubb) {
+  #Connect
+  tmp.server <- config::get("tmp.server")
+  tmp.user <- config::get("tmp.user")
+  tmp.credential <- config::get("tmp.credential")
+
+  tmp.session <- surveyConnectLs(user = tmp.user,
+                                 server = tmp.server,
+                                 credential = tmp.credential)
+
+  #GET IDs
+  #survey_list <- surveyGetSurveyIds(snr, ubb)
+  snr <- as.character(snr)
+
+  #Get survey list and filter by SNR
+  tmp.surveys <- call_limer(method = "list_surveys") |>
+    dplyr::mutate(snr = stringr::str_sub(surveyls_title, 1, 4)) |>
+    dplyr::filter(
+      stringr::str_detect(snr, "[0-9][0-9][0-9][0-9]") &
+        stringr::str_detect(surveyls_title, "ubb") == ubb
+    ) |>
+    dplyr::mutate(str = !!snr) |>
+    dplyr::filter(snr == !!snr)
+
+
+  if (nrow(tmp.surveys) == 0) {
+    cli::cli_abort("Error in check_response: SNR not found in Limesurvey.")
+  }
+
+  #Help fun to count cases:
+  #del full_responses
+  get_n = function (id) {
+    tmp <- call_limer(method = "get_summary",
+                      params = list(iSurveyID = id)) |>
+      as.data.frame() |>
+      dplyr::mutate(sid = id) |>
+      dplyr::select(sid, completed_responses)
+  }
+  #Apply to all elemets and rbind them
+  tmp.resp <- lapply(tmp.surveys$sid, get_n)
+  tmp.stat <- do.call("rbind", tmp.resp)
+
+  release_session_key()
+
+  #Join tmp.stat to tmp.surveys
+  survey_list <- tmp.surveys |>
+    dplyr::left_join(tmp.stat)
+
+  #Response check for all
+  if (audience == "all") {
+    survey_list <- survey_list |> dplyr::filter(completed_responses > 0)
+
+    if (nrow(survey_list) == 0) {
+      #usethis::ui_info("Response check for: {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
+      df <- tibble::tibble(snr = snr,
+                           check = FALSE)
+
+      return(df)
+    } else {
+      #usethis::ui_info("Response check for: {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
+      df <- tibble::tibble(snr = snr,
+                           check = TRUE)
+
+      #usethis::ui_info("Response check for: {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
+      return(df)
+    }
+
+
+  }
+
+
+  #Response check for other reports audiences
+  audience_list <- c("sus", "elt", "leh", "ubb", "aus", "ubb")
+  #Filter main groups
+  if (audience %in% audience_list == TRUE) {
+
+    #Which ID for group
+    results_audience <- stringr::str_which(survey_list$surveyls_title, audience)
+
+
+    completed_responses <- survey_list[results_audience, ]$completed_responses
+
+    if (any(completed_responses == 0)) {
+      df <- tibble::tibble(snr = snr,
+                           check = FALSE)
+
+      return(df)
+    }else {
+      df <- tibble::tibble(snr = snr,
+                           check = TRUE)
+      return(df)
+    }
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+#' Run Parallel
+#' @description Run all functions to create a report parallel
 #' @param snr Schoolnumber
 #' @param audience Report audience
 #' @param ubb UBB TRUE or FALSE
 #' @param results Results: Text string for audience of the report
 #' @param ganztag Ganztagsschule TRUE or FALSE
 #' @param stype Schooltype
-#' @return Results
-#' @examples
-#' \dontrun{
-#' purrr::pwalk(mylist, run_aslist)
-#' }
+#' @return Returns Rds, Plots, and PDF report
+#'
+#' @export
 
-run_aslist <- function(snr,
-                       audience,
-                       ubb,
-                       results,
-                       ganztag,
-                       stype) {
+runParallel <- function(snr,
+                        audience,
+                        ubb,
+                        results,
+                        ganztag,
+                        stype) {
 
+  assign("ubb", value = ubb, envir=globalenv())
 
-  get_parameter(server = tmp.server,
-                user = tmp.user,
-                credential = tmp.credential,
-                snr = snr,
+  cli::cli_progress_step("Create data and plots", spinner = TRUE)
+  get_parameter(snr = snr,
                 audience = audience,
                 ubb = ubb,
                 ganztag = ganztag,
-                stype = stype,
-                logger = tmp.log)
+                stype = stype)
 
-
-  cli::cli_progress_step("Create data and plots:", spinner = TRUE)
-
-
-  create_allplots2(meta = tmp.meta,
-                   audience = audience,
-                   data = tmp.data,
-                   report = tmp.report,
-                   snr = snr,
-                   ubb = ubb)
-
-  cli::cli_progress_step("Export tables:", spinner = TRUE)
-
-  export_tables(meta = tmp.meta,
-                data = tmp.data,
-                snr = snr,
-                report = tmp.report,
-                audience = audience,
-                ubb = ubb)
 
   cli::cli_progress_update();
+  cli::cli_progress_step("Get report infos", spinner = TRUE)
+  plots_report <- reports |>
+    dplyr::filter(report == tmp.report) |>
+    dplyr::arrange(plot) |>
+    dplyr::pull(plot) |>
+    unique()
 
-  #Render results
-  # cli::cli_progress_update();
-  # cli::cli_progress_step("Render results", spinner = TRUE)
-  #
-  # create_pdfs(snr = snr,
-  #             audience = audience,
-  #             name = tmp.name,
-  #             year = tmp.year,
-  #             ubb = ubb,
-  #             n = tmp.n,
-  #             d = tmp.dauer,
-  #             results = results)
-  #
-  # cli::cli_progress_update()
+  if (ubb) {
+    header_report <- plots_headers_ubb |> dplyr::filter(plot %in% plots_report)
+  }else {
+    header_report <- plots_headers |> dplyr::filter(plot %in% plots_report)
+  }
+
+
+  num_cores <- parallel::detectCores()
+  workers <- max(1, num_cores - 1)  #
+
+
+  #plan(multicore, workers = 4)  # Adjust workers based on your CPU cores
+  future::plan(future::multisession, workers = num_cores)  #
+
+  cli::cli_progress_update();
+  cli::cli_progress_step("Create plots", spinner = TRUE)
+  # Generate the list of plots in parallel
+  plot_list <- furrr::future_map(tmp.meta, ~ export_plot(
+    meta = .x,
+    snr = snr,
+    audience = audience,
+    report = tmp.report,
+    data = tmp.data,
+    ubb = ubb,
+    export = FALSE
+  ), .progress = TRUE)
+
+  cli::cli_progress_update();
+  cli::cli_progress_step("Create tables", spinner = TRUE)
+  # Generate the list of tables in parallel
+  table_list <- furrr::future_map(tmp.meta, ~ get_table(
+    meta = .x,
+    data = tmp.data,
+    audience = audience,
+    ubb = ubb,
+    report = tmp.report,
+    snr = snr,
+    export = FALSE
+  ), .progress = TRUE)
+
+
+  cli::cli_progress_update();
+  cli::cli_progress_step("Create PDF", spinner = TRUE)
+  tmp.dir <- get_directory(snr = snr)
+
+  # Create a template Rmd file
+  generate_rmd(x_seq = 1:length(table_list),
+               ubb = ubb,
+               file_name = paste0(tmp.dir, "/", "template.Rmd"))
+
+  rmarkdown::render(
+    input = paste0(tmp.dir, "/", "template.Rmd"),
+    output_file = paste0(tmp.dir, "/", snr, "_results_", audience, ".pdf"),
+    quiet = TRUE,
+    params = list(
+      snr = snr,
+      name = tmp.name,
+      n = tmp.n,
+      d = tmp.dauer,
+      fb = results
+    ))
+
+  # List all files in the directory (without full paths)
+  all_files <- list.files(tmp.dir, full.names = TRUE)
+  # Filter out the PDF files
+  files_to_delete <- all_files[!grepl("\\.pdf$", all_files, ignore.case = TRUE)]
+  # Delete the non-PDF files
+  file.remove(files_to_delete)
+
+  #Report via CLI if results are available:
+  x <- paste0(tmp.dir, "/", snr, "_results_", audience, ".pdf")
+
+  if (file.exists(x) == TRUE) {
+    usethis::ui_done("Exported PDF file for school {usethis::ui_value(snr)} and group {usethis::ui_value(audience)}")
+  }
+
+  if (interactive() == TRUE) {
+    invisible(system(paste0('open ', x)))
+  }
+
+
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -512,7 +675,6 @@ run_aslist <- function(snr,
 #' @return Returns a plot
 #'
 
-
 test_ExportPlot <- function(testmeta) {
 
   #Split meta list
@@ -520,10 +682,6 @@ test_ExportPlot <- function(testmeta) {
   tmp.rprtpckg <- tmp.var[1]
   tmp.plotid <- tmp.var[2]
 
-
-  #tmp.meta
-
-  #.GlobalEnv$tmp.data
   #Get data
   tmp.tab <- plotGetData(data = tmp.data,
                          plotid = tmp.plotid,
@@ -553,31 +711,12 @@ test_ExportPlot <- function(testmeta) {
 
 
   tmp.var_plot <- length(unique(data$vars))
-  #assign("tmp.var_plot", value = tmp.var_plot, envir=globalenv())
 
 
 
   #Manual adjustments for filter questions
-  #filterlist <- c("W2a", "W2leh", "w2use", "w33a")
-  filterlist <- get_filtervars()
-
   data <- data |> dplyr::filter(vals != "k. A.")
 
-  # if ((tmp.plotid %in% filterlist) == TRUE) {
-  #   #data <- data |> dplyr::filter(vals != "k. A.")
-  #   data <- data |> dplyr::filter(vals != " ")
-  # }
-
-  # if (tmp.plotid == "A3b" & ubb == TRUE) {
-  #   data <- data |> dplyr::filter(vals != "NA")
-  # }
-  #
-  # if (tmp.plotid == "W2b" & ubb == TRUE) {
-  #   data <- tidyr::drop_na(data)
-  # }
-
-
-  #data$txtlabel <- paste0(data$label_n, "\n (n: ", data$anz, ")")
 
   las_theme <- ggplot2::theme(
     #axis.title.x = ggplot2::element_blank(),
@@ -635,82 +774,38 @@ test_ExportPlot <- function(testmeta) {
 
 
 
-#test_ExportPlot(testmeta = tmp.meta[13])
 
-#devtools::document()
-
-#' Get the rmd code for the report
-#' @description Functions runs export_plots function for testing a  single plot
-#' @param x_seq Sequence
-#' @return Returns a plot
+#' Superseded by Parallelization: Export table headers
+#' @description Returns text for reports (headers)
+#' @param meta Metadata
+#' @param ubb UBB TRUE or FALSE
+#'
+#' @return data frame (Headers)
 #' @export
+export_headers <- function (meta,
+                            ubb) {
 
-get_rmd <- function(x_seq) {
-  # Initialize a list to hold the chunks
-  rmd_chunks <- c()
-
-  # Loop over the sequence and generate the RMarkdown content for each value of `x_seq`
-  for (x in x_seq) {
-    chunk1 <- paste0("```{r, results='asis'}\n", "cat(paste0('## ', header_report$header1[", x, "]))\n", "```")
-    chunk2 <- paste0("```{r}\n", "plot_list[[", x, "]]\n", "```")
-    chunk3 <- paste0("```{r}\n", "table_list[[", x, "]]\n", "```")
-
-    # Add each chunk to the list
-    rmd_chunks <- c(rmd_chunks, chunk1, chunk2, chunk3)
-  }
-
-  # Combine all the chunks into a single string, separated by newlines
-  rmd_content <- paste(rmd_chunks, collapse = "\n\n")
-
-  # Return the full RMarkdown content as a single string
-  return(rmd_content)
-}
-
-
-
-#get_rmd(1:2)
-
-#' Generate the Rmd file for the report
-#' @description Functions runs export_plots function for testing a  single plot
-#' @param x_seq Sequence
-#' @param file_name Filename
-#' @return Returns a plot
-#' @export
-
-
-generate_rmd <- function(x_seq,
-                         ubb,
-                         file_name = "generated_document.Rmd") {
-  # Read the template file content for the YAML header and any other template content
-  #yaml_header <- "---\ntitle: \"Untitled\"\noutput: html_document\ndate: \"2024-11-26\"\n---\n"
-
-  if (ubb) {
-    yaml_header <- readLines(here::here("tmplts", "template_ubb_min.Rmd"))
+  #Which headers
+  if (ubb == TRUE) {
+    data(plots_headers_ubb)
+    headers <- plots_headers_ubb
   }else {
-    yaml_header <- readLines(here::here("tmplts", "template_min.Rmd"))
+    data(plots_headers)
+    headers <- plots_headers
   }
 
+  #Match survey items (plotsnames) with headers
+  plotnames <- stringr::str_split_fixed(meta, pattern = "#", n = 2)
+  plotnames <- plotnames[,2]
+  plotnames <- unique(plotnames)
 
+  headers_df <- headers |>
+    dplyr::filter(plot %in% plotnames) |>
+    dplyr::arrange(sort)
 
-  # Combine the YAML header content into a single string with appropriate newlines
-  yaml_header <- paste(yaml_header, collapse = "\n")
-
-  # Get the RMarkdown content from the get_rmd function
-  rmd_content <- get_rmd(x_seq)
-
-  # Combine the YAML header with the RMarkdown content
-  full_rmd <- paste(yaml_header, rmd_content, sep = "\n\n")
-
-  # Write the full RMarkdown content to the specified file
-  writeLines(full_rmd, file_name)
-
-  # Optionally, print a message to confirm the file is created
-  #message("RMarkdown content has been written to ", file_name)
+  return(headers_df)
 }
 
-
-
-#generate_rmd(1:44, ubb = TRUE)
 
 
 

@@ -91,3 +91,17 @@ NULL
 #' @name reports
 #' @docType data
 NULL
+
+#' The schools_names data
+#'
+#' This data defines sets, lables, colors, etc.
+#'
+#' @format A data frame with 54 rows and 7 variables:
+#' \describe{
+#'   \item{SNR}{The school number}
+#'   \item{SNAME}{School name}
+#'   ...
+#' }
+#' @name schools_names
+#' @docType data
+NULL

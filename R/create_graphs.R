@@ -20,7 +20,6 @@ export_plot = function (meta,
   tmp.rprtpckg <- tmp.var[1]
   tmp.plotid <- tmp.var[2]
 
-  #.GlobalEnv$tmp.data
   #Get data
   tmp.tab <- plotGetData(data = data,
                          plotid = tmp.plotid,
@@ -37,8 +36,6 @@ export_plot = function (meta,
 
   #Labels
   data(sets)
-  #tmp.item.labels <- MetaMaster::DB_Table("sets")
-
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
@@ -58,7 +55,7 @@ export_plot = function (meta,
 
   #Manual adjustments for filter questions
   #filterlist <- c("W2a", "W2leh", "w2use", "w33a")
-  filterlist <- get_filtervars()
+  #filterlist <- get_filtervars()
 
   data <- data |> dplyr::filter(vals != "k. A.")
 
@@ -198,14 +195,14 @@ export_plot = function (meta,
                     dpi = 300,
                     units = "mm"
     )
+
     usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
-    # if (interactive() == TRUE) {
-    #   usethis::ui_done("Export plot: {usethis::ui_value(tmp.plotid)}")
-    # }
   }
   return(tmp.p)
 
 }
+
+
 
 
 #' Create all report plots at once simplified

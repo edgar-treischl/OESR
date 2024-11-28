@@ -425,7 +425,8 @@ plotGetMetaData <- function(rprtpckg,
   tmp.rprtpckg <- rprtpckg
   tmp.report <- report
 
-  report_templates <- MetaMaster::DB_Table("reports")
+  data(reports)
+  report_templates <- reports
 
 
   if (audience == "all") {
@@ -474,7 +475,8 @@ plotGetData <- function(data,
   tmp.report <- report
 
   #Get meta data
-  meta_raw  <- MetaMaster::DB_Table("reports")
+  data(reports)
+  meta_raw  <- reports
 
 
   #Filter report and plot
@@ -502,7 +504,8 @@ plotGetData <- function(data,
   # )
 
   #Get item labels
-  tmp.item.labels <- MetaMaster::DB_Table("sets")
+  data(sets)
+  tmp.item.labels <- sets
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
@@ -569,6 +572,10 @@ plotGetData <- function(data,
 #' @param expired all or yesterday
 #' @export
 get_snr = function (expired) {
+
+  tmp.server <- config::get("tmp.server")
+  tmp.user <- config::get("tmp.user")
+  tmp.credential <- config::get("tmp.credential")
 
   #Connect to LimeSurvey
   tmp.session <- surveyConnectLs(user = tmp.user,
@@ -777,32 +784,7 @@ get_snr = function (expired) {
   return(snrlist)
 }
 
-#' Get school name
-#' @description Get school name (string) based on their school number
-#' @param snr School number as a character string
-#' @export
-get_sname = function (snr) {
-  #get data and filter for snr
-  tmp.name <- readr::read_delim(here::here("orig/301_schulnummerlabels.csv"),
-                                delim = ";", escape_double = FALSE, locale = readr::locale(encoding = "WINDOWS-1252"),
-                                trim_ws = TRUE, show_col_types = FALSE)|>
-    dplyr::filter(SNR == snr)
 
-  #get name
-  tmp.name <- tmp.name$SNAME |> unique()
-
-  #Check if more than one name is found
-  if (length(tmp.name) > 1) {
-    cli::cli_abort("Error in get_sname(): More than one school name found.")
-  }
-
-  # if no name is found?
-  if (length(tmp.name) == 0) {
-    tmp.name <- "School name not available."
-  }
-
-  return(tmp.name)
-}
 
 
 #' Get a list with school numbers
@@ -819,6 +801,10 @@ get_snrlist <- function(drop = TRUE,
     cli::cli_inform("No expired surveys found. All up to date")
     return(NULL)
   }
+
+  #tmp.server <- config::get("tmp.server")
+  #tmp.user <- config::get("tmp.user")
+  #tmp.credential <- config::get("tmp.credential")
 
   #Check if data is available
   mylist <- list(user = tmp.user,
@@ -900,16 +886,7 @@ get_n = function (audience,
 
 
 
-#' get_filtervars
-#' @description Get unique filter variable names
-#' @return String with filter Variables
-#' @export
-get_filtervars = function () {
-  readxl::read_excel(here::here("orig/filter_plots.xlsx")) |>
-    dplyr::select(filter_var)|>
-    dplyr::pull()|>
-    unique()
-}
+
 
 
 
@@ -928,10 +905,7 @@ get_rprtpckg <-  function (report,
   #Get templates list
   # templates <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                 sheet = "templates")
-
-  templates <- MetaMaster::DB_Table("templates")
-
-
+  data(templates)
   #Find reportpackage, survey, and report template
   if (report != "all") {
     tmp.rprtpckg <- templates |> dplyr::filter(stype == school,
@@ -980,80 +954,6 @@ get_rprtpckg <-  function (report,
     return(list)
 
 }
-
-#' Get the list of all surveys from LimeSurvey
-#' @description Get unique filter variable names
-#' @param export Export the list to an Excel file
-#' @export
-get_list_surveys <- function(export = FALSE) {
-  #Connect
-  tmp.session <- surveyConnectLs(user = tmp.user,
-                                 credential = tmp.credential,
-                                 server = tmp.server)
-
-  #Get data and meta data
-  df <- call_limer(method = "list_surveys")
-
-  #Export or return
-  if (export == TRUE) {
-    openxlsx::write.xlsx(df,
-                         file = paste("LimeSurvey", lubridate::today(), ".xlsx",
-                                      sep = ""))
-
-  }else {
-    return(df)
-  }
-}
-
-
-#get_list_surveys(export = FALSE)
-
-
-
-
-#' Export table headers
-#' @description Returns text for reports (headers)
-#' @param meta Metadata
-#' @param ubb UBB TRUE or FALSE
-#'
-#' @return data frame (Headers)
-#' @export
-export_headers <- function (meta,
-                            ubb) {
-
-  #Which headers
-  if (ubb == TRUE) {
-    # headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-    #                               sheet = "plots_headers_ubb")
-
-    headers <- MetaMaster::DB_Table("plots_headers_ubb")
-  }else {
-    # headers <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
-    #                               sheet = "plots_headers")
-
-    headers <- MetaMaster::DB_Table("plots_headers")
-  }
-
-  #Match survey items (plotsnames) with headers
-  plotnames <- stringr::str_split_fixed(meta, pattern = "#", n = 2)
-  plotnames <- plotnames[,2]
-  plotnames <- unique(plotnames)
-
-  headers_df <- headers |>
-    dplyr::filter(plot %in% plotnames) |>
-    dplyr::arrange(sort)
-
-  return(headers_df)
-}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1213,16 +1113,12 @@ get_parameter <- function (snr,
     assign("tmp.meta", value = tmp.meta, envir=globalenv())
   }
 
+  cli::cli_alert_success("All parameters set.")
   if (interactive() == TRUE) {
-    cli::cli_alert_success("All parameters set.")
     return(tmp.data)
   }
 
 }
-
-
-
-
 
 
 
