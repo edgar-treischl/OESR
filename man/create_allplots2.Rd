@@ -9,7 +9,13 @@ create_allplots2(meta, snr, audience, report, data, ubb)
 \arguments{
 \item{meta}{Meta data}
 
-\item{audience}{audience}
+\item{snr}{Schoolnumber}
+
+\item{audience}{Audience}
+
+\item{report}{Reporttemplate}
+
+\item{data}{Data}
 
 \item{ubb}{TRUE or FALSE}
 }

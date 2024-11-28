@@ -11,6 +11,8 @@ plotGetData(data, rprtpckg, report, plotid, audience)
 
 \item{rprtpckg}{Reportpackage}
 
+\item{report}{Report}
+
 \item{plotid}{PlotID from meta data}
 
 \item{audience}{Audience of the report}

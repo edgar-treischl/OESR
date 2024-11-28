@@ -413,6 +413,7 @@ surveyGetDataLongformat <- function(ids,
 #' und die plotid enthaellt.
 #'
 #' @param rprtpckg (string)
+#' @param report (string)
 #' @param audience Group indicator
 #' @param ganztag Ganztag indicator
 #' @return meta (vector string)
@@ -425,7 +426,6 @@ plotGetMetaData <- function(rprtpckg,
   tmp.rprtpckg <- rprtpckg
   tmp.report <- report
 
-  data(reports)
   report_templates <- reports
 
 
@@ -458,6 +458,7 @@ plotGetMetaData <- function(rprtpckg,
 #'
 #' @param data Datensatz aus surveyGetDataLongformat()
 #' @param rprtpckg Reportpackage
+#' @param report Report
 #' @param plotid PlotID from meta data
 #' @param audience Audience of the report
 #'
@@ -475,7 +476,6 @@ plotGetData <- function(data,
   tmp.report <- report
 
   #Get meta data
-  data(reports)
   meta_raw  <- reports
 
 
@@ -504,7 +504,6 @@ plotGetData <- function(data,
   # )
 
   #Get item labels
-  data(sets)
   tmp.item.labels <- sets
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
@@ -689,10 +688,10 @@ get_snr = function (expired) {
         ),
         results = dplyr::case_when(
           elt == TRUE ~ "Eltern",
-          sus == TRUE ~ "Schülerinnen und Schüler",
+          sus == TRUE ~ "Sch\u00fchlerinnen und Sch\u00fchler",
           aus == TRUE ~ "Ausbildungspartner",
           ubb == TRUE ~ "Unterrichtsbeobachtung",
-          leh == TRUE ~ "Lehrkräfte"
+          leh == TRUE ~ "Lehrkr\u00e4fte"
         )
       )
 
@@ -774,10 +773,10 @@ get_snr = function (expired) {
         ),
         results = dplyr::case_when(
           elt == TRUE ~ "Eltern",
-          sus == TRUE ~ "Schülerinnen und Schüler",
+          sus == TRUE ~ "Sch\u00fchlerinnen und Sch\u00fchler",
           aus == TRUE ~ "Ausbildungspartner",
           ubb == TRUE ~ "Unterrichtsbeobachtung",
-          leh == TRUE ~ "Lehrkräfte"
+          leh == TRUE ~ "Lehrkr\u00e4fte"
         )
       )
   }
@@ -802,15 +801,8 @@ get_snrlist <- function(drop = TRUE,
     return(NULL)
   }
 
-  #tmp.server <- config::get("tmp.server")
-  #tmp.user <- config::get("tmp.user")
-  #tmp.credential <- config::get("tmp.credential")
-
   #Check if data is available
-  mylist <- list(user = tmp.user,
-                 credential = tmp.credential,
-                 server = tmp.server,
-                 snr = snrlist$snr,
+  mylist <- list(snr = snrlist$snr,
                  audience = snrlist$audience,
                  ubb = snrlist$ubb)
 
@@ -905,7 +897,7 @@ get_rprtpckg <-  function (report,
   #Get templates list
   # templates <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                 sheet = "templates")
-  data(templates)
+
   #Find reportpackage, survey, and report template
   if (report != "all") {
     tmp.rprtpckg <- templates |> dplyr::filter(stype == school,
@@ -1122,16 +1114,20 @@ get_parameter <- function (snr,
 
 
 
-
-
-utils::globalVariables(c("JAHR", "SNR", "anz", "full_responses", "label_n",
-                         "label_short", "last_col", "newlable", "p", "plot2",
-                         "plotdata", "results_fb", "rprtpckg", "set", "sid",
-                         "submitdate", "survey" ,"surveyls_title", "surveyls_type",
-                         "audience", "tmp.data", "tmp.dir_res", "tmp.meta",
-                         "tmp.n", "tmp.name", "tmp.rprtpckg", "tmp.sids.df",
-                         "snr", "tmp.survey", "ubb", "year", "type", "vals",
-                         "varlabel", "vars"))
+utils::globalVariables(c("templates",
+                         "stype",
+                         "type",
+                         "ganztag",
+                         "ubb",
+                         "rprtpckg",
+                         "surveys",
+                         "report_tmpl",
+                         "active",
+                         "survey",
+                         "expired_reports",
+                         "sid",
+                         "surveyls_title",
+                         "expires"))
 
 
 

@@ -8,9 +8,11 @@ get_directory_res(snr, audience)
 }
 \arguments{
 \item{snr}{The schoolnumber}
+
+\item{audience}{The audience of the report}
 }
 \value{
-Foldername or warning
+Foldername
 }
 \description{
 Bla bla

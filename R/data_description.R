@@ -88,7 +88,7 @@ NULL
 #'   \item{timestamp}{Timestamp of creation}
 #'   ...
 #' }
-#' @name reports
+#' @name templates
 #' @docType data
 NULL
 

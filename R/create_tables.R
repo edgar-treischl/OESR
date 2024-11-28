@@ -1,7 +1,10 @@
 #' Get table
 #' @description Get a flextable for RAW data input
 #' @param meta Metadata
+#' @param snr SNR
 #' @param audience Audience of the report
+#' @param report Reporttemplate
+#' @param data Data
 #' @param export Export
 #' @param ubb UBB TRUE or FALSE
 #' @return A flextable
@@ -50,7 +53,6 @@ get_table = function (meta,
 
   #get colorscheme for the table
   #tmp.item.labels <- MetaMaster::DB_Table("sets")
-  data(sets)
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
@@ -339,7 +341,10 @@ get_table = function (meta,
 #' Export tables
 #' @description Export all plots as svg and convert them to PDFs
 #' @param meta Meta data
+#' @param snr SNR
+#' @param data Data
 #' @param audience Reporting group
+#' @param report Reporttemplate
 #' @param ubb UBB TRUE or FALSE
 #'
 #' @return A flextable

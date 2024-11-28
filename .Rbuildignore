@@ -4,3 +4,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^Dockerfile$
+^config\.yml$
+^session\.log$
+^my_mail_creds$

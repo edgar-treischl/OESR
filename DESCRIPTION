@@ -13,5 +13,27 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Suggests: 
+    rsvg,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports: 
+    base64enc,
+    cli,
+    config,
+    dplyr,
+    flextable,
+    furrr,
+    future,
+    ggplot2,
+    here,
+    httr,
+    jsonlite,
+    lubridate,
+    purrr,
+    readxl,
+    rmarkdown,
+    scales,
+    stringr,
+    tibble,
+    tidyr,
+    usethis

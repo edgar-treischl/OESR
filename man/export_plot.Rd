@@ -9,7 +9,13 @@ export_plot(meta, snr, audience, report, data, ubb, export = TRUE)
 \arguments{
 \item{meta}{Meta data}
 
+\item{snr}{Schoolnumber}
+
 \item{audience}{audience}
+
+\item{report}{Reporttemplate}
+
+\item{data}{Data}
 
 \item{ubb}{TRUE or FALSE}
 

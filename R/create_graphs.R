@@ -1,9 +1,11 @@
 #' Export plots
 #' @description Function to export pngs directly.
 #' @param meta Meta data
+#' @param snr Schoolnumber
 #' @param audience audience
+#' @param report Reporttemplate
+#' @param data Data
 #' @param ubb TRUE or FALSE
-#'
 #' @param export TRUE or FALSE
 #' @export
 
@@ -35,7 +37,6 @@ export_plot = function (meta,
     unlist()
 
   #Labels
-  data(sets)
   # tmp.item.labels <- readxl::read_excel(here::here("orig/report_meta_dev.xlsx"),
   #                                       sheet = 'sets')
 
@@ -208,7 +209,10 @@ export_plot = function (meta,
 #' Create all report plots at once simplified
 #' @description Create all report plots at once simplified, direct export of pngs
 #' @param meta Meta data
-#' @param audience audience
+#' @param snr Schoolnumber
+#' @param audience Audience
+#' @param report Reporttemplate
+#' @param data Data
 #' @param ubb TRUE or FALSE
 #' @export
 

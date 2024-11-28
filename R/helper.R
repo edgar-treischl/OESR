@@ -15,7 +15,8 @@ get_directory <- function(snr) {
 #' Get the directory of the results
 #' @description Bla bla
 #' @param snr The schoolnumber
-#' @return Foldername or warning
+#' @param audience The audience of the report
+#' @return Foldername
 #' @export
 
 get_directory_res <- function(snr, audience) {
@@ -33,7 +34,6 @@ get_directory_res <- function(snr, audience) {
 #' @export
 get_sname = function (snr) {
 
-  data(schools_names)
   tmp.name <- schools_names |> dplyr::filter(SNR == snr)
   tmp.name <- tmp.name$SNAME
 
@@ -82,6 +82,8 @@ get_rmd <- function(x_seq) {
 #' Generate the Rmd file for the report
 #' @description Functions runs export_plots function for testing a  single plot
 #' @param x_seq Sequence
+#' @param ubb UBB TRUE or FALSE
+#' @param export Export TRUE or FALSE
 #' @param file_name Filename
 #' @return Returns a plot
 #' @export
@@ -787,10 +789,8 @@ export_headers <- function (meta,
 
   #Which headers
   if (ubb == TRUE) {
-    data(plots_headers_ubb)
     headers <- plots_headers_ubb
   }else {
-    data(plots_headers)
     headers <- plots_headers
   }
 
@@ -808,7 +808,12 @@ export_headers <- function (meta,
 
 
 
-
+utils::globalVariables(c("plots_headers",
+                         "schools_names",
+                         "sets",
+                         "plots_headers_ubb",
+                         "reports", "report")
+                       )
 
 
 

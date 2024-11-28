@@ -9,7 +9,13 @@ export_tables(meta, snr, data, audience, report, ubb)
 \arguments{
 \item{meta}{Meta data}
 
+\item{snr}{SNR}
+
+\item{data}{Data}
+
 \item{audience}{Reporting group}
+
+\item{report}{Reporttemplate}
 
 \item{ubb}{UBB TRUE or FALSE}
 }

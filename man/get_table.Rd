@@ -9,7 +9,13 @@ get_table(meta, snr, audience, report, data, export = FALSE, ubb)
 \arguments{
 \item{meta}{Metadata}
 
+\item{snr}{SNR}
+
 \item{audience}{Audience of the report}
+
+\item{report}{Reporttemplate}
+
+\item{data}{Data}
 
 \item{export}{Export}
 

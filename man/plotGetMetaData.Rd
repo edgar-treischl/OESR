@@ -9,6 +9,8 @@ plotGetMetaData(rprtpckg, report, audience, ganztag)
 \arguments{
 \item{rprtpckg}{(string)}
 
+\item{report}{(string)}
+
 \item{audience}{Group indicator}
 
 \item{ganztag}{Ganztag indicator}
